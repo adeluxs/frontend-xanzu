@@ -5,7 +5,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: process.env.NEXT_PUBLIC_IMAGE_BASE_URL || "localhost",
+        hostname: "mozapayapp.com",
         pathname: "/**",
       },
     ],

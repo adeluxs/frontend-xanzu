@@ -96,6 +96,10 @@ export const loadPageData = async (pageName) => {
       cache: "no-store",
     });
 
+    if (res.status === 404) {
+      return null;
+    }
+
     if (!res.ok) {
       throw new Error("Failed to load page data");
     }

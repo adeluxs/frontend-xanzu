@@ -11,6 +11,7 @@ import {
   PlusIcon,
   SettingsIcon,
   StoreManagementIcon,
+  TransferIcon,
   WithdrawIcon,
 } from "@/icons";
 
@@ -68,6 +69,11 @@ export const getNavSections = (t, totalPendingOrders = 0) => [
         name: t("dashboard.withdraw"),
         href: "/dashboard/withdraw",
         icon: WithdrawIcon,
+      },
+      {
+        name: t("dashboard.sendMoney"),
+        href: "/dashboard/transfer",
+        icon: TransferIcon,
       },
       {
         name: t("dashboard.transactionHistory"),

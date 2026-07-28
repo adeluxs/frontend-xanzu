@@ -48,7 +48,7 @@ export default async function RootLayout({ children }) {
   const locale = await getLocale();
   const dictionary = await getDictionary(locale);
   const languages = await loadLanguages();
-  const selectedLanguage = getSelectedLanguage(languages, locale);
+  const selectedLanguage = getSelectedLanguage(languages, locale) || languages[0] || { is_rtl: false };
 
   return (
     <html

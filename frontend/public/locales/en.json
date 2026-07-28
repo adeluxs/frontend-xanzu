@@ -351,6 +351,26 @@
     "updateOrderStatus": "Update Order Status",
     "select": "Select",
     "updateStatus": "Update Status",
-    "updateDelivery": "Update Delivery"
+    "updateDelivery": "Update Delivery",
+    "sendMoney": "Send Money",
+    "sendMoneyTitle": "Send Money to Another User",
+    "recipientPhone": "Recipient Phone Number",
+    "enterRecipientPhone": "Enter recipient phone number",
+    "amount": "Amount",
+    "enterAmount": "Enter amount",
+    "send": "Send",
+    "sending": "Sending...",
+    "sendMoneySuccess": "Transfer successful",
+    "sendMoneyFailed": "Transfer failed",
+    "insufficientBalance": "Insufficient balance",
+    "recipientNotFound": "Recipient not found",
+    "cannotSendToYourself": "You cannot send money to yourself",
+    "transferNotEnabled": "Transfer is not enabled for your account",
+    "recipientRequired": "Recipient phone number is required",
+    "amountRequired": "Amount is required",
+    "enterValidAmount": "Please enter a valid amount",
+    "availableBalance": "Available Balance",
+    "recipient": "Recipient",
+    "transferHistory": "Transfer History"
   }
 }

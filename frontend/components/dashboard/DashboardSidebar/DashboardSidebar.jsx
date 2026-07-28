@@ -1,20 +1,16 @@
 "use client";
 import { useT } from "@/context/TranslationContext";
 import { useOrderCounterQuery } from "@/lib/features/orderCounter/orderCounterApi";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { useSelector } from "react-redux";
+import DashboardLogo from "./DashboardLogo";
 import { getNavSections } from "../navSections";
 
 const DashboardSidebar = ({ isOpen, setIsOpen }) => {
   const t = useT();
   const currentPath = usePathname();
   const [openDropdown, setOpenDropdown] = useState(null);
-  const logo = useSelector(
-    (state) => state?.settings?.settings?.site_logo_dark,
-  );
   const { data: orderCount, isLoading: isOrderCountLoading } =
     useOrderCounterQuery();
 
@@ -25,6 +21,8 @@ const DashboardSidebar = ({ isOpen, setIsOpen }) => {
   };
 
   const sections = getNavSections(t, totalPendingOrders);
+  console.log("NAV SECTIONS:", JSON.stringify(sections, null, 2));
+  console.log("DASHBOARD SIDEBAR MOUNTED - VERSION 2");
 
   return (
     <>
@@ -46,17 +44,7 @@ const DashboardSidebar = ({ isOpen, setIsOpen }) => {
         {/* Logo */}
         <div className="flex items-center h-16 lg:h-16 px-6 mt-0 sm:mt-5">
           <Link href="/" className="h-[20px] sm:h-[22px] w-auto">
-            {logo ? (
-              <Image
-                src={logo}
-                alt="logo"
-                width={150}
-                height={40}
-                className="w-full h-full object-contain"
-              />
-            ) : (
-              <div className="w-[120px] h-[22px] bg-gray-300 animate-pulse rounded-md" />
-            )}
+            <DashboardLogo />
           </Link>
         </div>
 

@@ -1012,6 +1012,24 @@ export const DeliveryIcon = ({ className }) => (
     />
   </svg>
 );
+export const TransferIcon = ({ className }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    viewBox="0 0 20 20"
+    fill="none"
+    className={className}
+  >
+    <path
+      d="M2.5 10H17.5M17.5 10L13.3333 5.83333M17.5 10L13.3333 14.1667M17.5 10H11.6667M2.5 10L6.66667 14.1667M2.5 10L6.66667 5.83333"
+      stroke="currentColor"
+      strokeWidth="1.66667"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
 export const OrderManagementIcon = ({ className }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
