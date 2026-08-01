@@ -13,7 +13,7 @@ export const transformSettingsArray = (settings = []) => {
 export const loadLanguages = async () => {
   try {
     const res = await fetch(`${baseUrl}/get-languages`, {
-      next: { revalidate: 60 },
+      next: { revalidate: 300 },
     });
     const data = await res.json();
     return data.data || [];
@@ -34,7 +34,7 @@ export const getSelectedLanguage = (languages, locale) => {
 export const loadSiteSettings = async () => {
   try {
     const res = await fetch(`${baseUrl}/get-settings`, {
-      cache: "no-store",
+      next: { revalidate: 300 },
     });
 
     if (!res.ok) {
@@ -59,7 +59,7 @@ export const buildPageTitle = async (pageTitle) => {
 export const loadLandingData = async (locale = "en") => {
   try {
     const res = await fetch(`${baseUrl}/landing-data/${locale}`, {
-      cache: "no-store",
+      next: { revalidate: 300 },
     });
 
     if (!res.ok) {
@@ -76,7 +76,7 @@ export const loadLandingData = async (locale = "en") => {
 export const loadNavigationData = async (locale = "en") => {
   try {
     const res = await fetch(`${baseUrl}/navigation/${locale}`, {
-      cache: "no-store",
+      next: { revalidate: 300 },
     });
 
     if (!res.ok) {
@@ -93,7 +93,7 @@ export const loadNavigationData = async (locale = "en") => {
 export const loadPageData = async (pageName) => {
   try {
     const res = await fetch(`${baseUrl}/page-data/${pageName}`, {
-      cache: "no-store",
+      next: { revalidate: 300 },
     });
 
     if (!res.ok) {

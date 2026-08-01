@@ -27,7 +27,7 @@ function buildRedirectResponse(request, pathname, clearToken = false) {
   return response;
 }
 
-async function getJson(endpoint, token) {
+async function getJson(endpoint, token, revalidate = 0) {
   const headers = {
     Accept: "application/json",
   };
@@ -38,7 +38,7 @@ async function getJson(endpoint, token) {
 
   const response = await fetch(`${API_URL}${endpoint}`, {
     headers,
-    cache: "no-store",
+    next: revalidate > 0 ? { revalidate } : { noStore: true },
   });
 
   if (!response.ok) {
@@ -95,7 +95,7 @@ export async function middleware(request) {
   let settings = {};
 
   try {
-    const settingsResponse = await getJson("/get-settings");
+    const settingsResponse = await getJson("/get-settings", token, 300);
     settings = transformSettingsArray(settingsResponse?.data || []);
   } catch {}
 

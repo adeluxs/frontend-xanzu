@@ -3,10 +3,11 @@ import Image from "next/image";
 import { useT } from "@/context/TranslationContext";
 import {
   useGetTransferConfigQuery,
+  useLookupTransferRecipientQuery,
   useSendTransferMutation,
   useValidateTransferMutation,
 } from "@/lib/features/transfer/transferApi";
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { toast } from "react-toastify";
 
 const Transfer = () => {
@@ -15,9 +16,14 @@ const Transfer = () => {
   const [step, setStep] = useState(1);
   const [successData, setSuccessData] = useState(null);
   const [errors, setErrors] = useState({});
+  const [recipientName, setRecipientName] = useState("");
 
   const { data: configData, isLoading: configLoading } =
     useGetTransferConfigQuery({});
+  const { data: lookupData, isLoading: isLookingUp } =
+    useLookupTransferRecipientQuery(recipientPhone, {
+      skip: !recipientPhone || recipientPhone.trim().length < 3,
+    });
   const [sendTransfer, { isLoading: isSubmitting }] =
     useSendTransferMutation();
   const [validateTransfer, { isLoading: isValidating }] =
@@ -26,6 +32,14 @@ const Transfer = () => {
   const t = useT();
   const balance = configData?.data?.user_balance ?? 0;
   const transferEnabled = configData?.data?.transfer_status === 1;
+
+  useEffect(() => {
+    if (lookupData?.data?.full_name) {
+      setRecipientName(lookupData.data.full_name);
+    } else {
+      setRecipientName("");
+    }
+  }, [lookupData]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -86,6 +100,7 @@ const Transfer = () => {
     setSuccessData(null);
     setStep(1);
     setErrors({});
+    setRecipientName("");
   };
 
   if (configLoading) {
@@ -164,6 +179,22 @@ const Transfer = () => {
                 </div>
                 {errors.recipientPhone && (
                   <p className="text-xs text-red-500 mt-1.5 font-medium">{errors.recipientPhone}</p>
+                )}
+
+                {isLookingUp && (
+                  <div className="flex items-center gap-2 mt-2">
+                    <div className="w-4 h-4 border-2 border-[#44F1A6]/30 border-t-[#44F1A6] rounded-full animate-spin" />
+                    <span className="text-xs text-grayish/60">{t("dashboard.lookingUp") || "Looking up recipient..."}</span>
+                  </div>
+                )}
+
+                {recipientName && !isLookingUp && (
+                  <div className="flex items-center gap-2 mt-2">
+                    <svg className="w-4 h-4 text-[#44F1A6]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-sm font-semibold text-grayish">{recipientName}</span>
+                  </div>
                 )}
               </div>
 

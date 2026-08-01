@@ -12,6 +12,25 @@ export const transferApi = apiSlice.injectEndpoints({
       providesTags: ["Auth"],
     }),
 
+    lookupTransferRecipient: builder.query({
+      query: (phone) => ({
+        url: `/merchant/transfer/lookup?phone=${encodeURIComponent(phone)}`,
+        method: "GET",
+      }),
+      async onQueryStarted(args, { queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          return data;
+        } catch (err) {
+          const message =
+            err?.data?.message ||
+            err?.error?.data?.message ||
+            "Recipient not found.";
+          toast.error(message);
+        }
+      },
+    }),
+
     validateTransfer: builder.mutation({
       query: (data) => ({
         url: "/merchant/transfer/validate",
@@ -58,6 +77,7 @@ export const transferApi = apiSlice.injectEndpoints({
 
 export const {
   useGetTransferConfigQuery,
+  useLookupTransferRecipientQuery,
   useValidateTransferMutation,
   useSendTransferMutation,
 } = transferApi;
