@@ -26,6 +26,10 @@ const Transfer = () => {
     useLookupTransferRecipientQuery(recipientPhone, {
       skip: !recipientPhone || recipientPhone.trim().length < 3,
     });
+  const [sendTransfer, { isLoading: isSubmitting }] =
+    useSendTransferMutation();
+  const [validateTransfer, { isLoading: isValidating }] =
+    useValidateTransferMutation();
 
   const t = useT();
   const balance = configData?.data?.user_balance ?? 0;
