@@ -17,18 +17,6 @@ export const transferApi = apiSlice.injectEndpoints({
         url: `/merchant/transfer/lookup?phone=${encodeURIComponent(phone)}`,
         method: "GET",
       }),
-      async onQueryStarted(args, { queryFulfilled }) {
-        try {
-          const { data } = await queryFulfilled;
-          return data;
-        } catch (err) {
-          const message =
-            err?.data?.message ||
-            err?.error?.data?.message ||
-            "Recipient not found.";
-          toast.error(message);
-        }
-      },
     }),
 
     validateTransfer: builder.mutation({

@@ -7,7 +7,7 @@ import {
   useSendTransferMutation,
   useValidateTransferMutation,
 } from "@/lib/features/transfer/transferApi";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 
 const Transfer = () => {
@@ -17,6 +17,8 @@ const Transfer = () => {
   const [successData, setSuccessData] = useState(null);
   const [errors, setErrors] = useState({});
   const [recipientName, setRecipientName] = useState("");
+  const [lookupNotFound, setLookupNotFound] = useState(false);
+  const [lookupAttempted, setLookupAttempted] = useState(false);
 
   const { data: configData, isLoading: configLoading } =
     useGetTransferConfigQuery({});
@@ -24,22 +26,34 @@ const Transfer = () => {
     useLookupTransferRecipientQuery(recipientPhone, {
       skip: !recipientPhone || recipientPhone.trim().length < 3,
     });
-  const [sendTransfer, { isLoading: isSubmitting }] =
-    useSendTransferMutation();
-  const [validateTransfer, { isLoading: isValidating }] =
-    useValidateTransferMutation();
 
   const t = useT();
   const balance = configData?.data?.user_balance ?? 0;
   const transferEnabled = configData?.data?.transfer_status === 1;
 
   useEffect(() => {
-    if (lookupData?.data?.full_name) {
+    if (!lookupData) {
+      setRecipientName("");
+      setLookupNotFound(false);
+      setLookupAttempted(false);
+      return;
+    }
+
+    setLookupAttempted(true);
+
+    if (lookupData.status === true && lookupData.data?.full_name) {
       setRecipientName(lookupData.data.full_name);
+      setLookupNotFound(false);
     } else {
       setRecipientName("");
+      setLookupNotFound(true);
     }
   }, [lookupData]);
+
+  useEffect(() => {
+    setLookupNotFound(false);
+    setLookupAttempted(false);
+  }, [recipientPhone]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -94,6 +108,10 @@ const Transfer = () => {
     }
   };
 
+  const handleSubmit = () => {
+    handleValidate();
+  };
+
   const resetForm = () => {
     setRecipientPhone("");
     setAmount("");
@@ -101,11 +119,13 @@ const Transfer = () => {
     setStep(1);
     setErrors({});
     setRecipientName("");
+    setLookupNotFound(false);
+    setLookupAttempted(false);
   };
 
   if (configLoading) {
     return (
-      <div className="max-w-[660px] mx-auto">
+      <div className="max-w-[660px] mx-auto pt-6 sm:pt-10">
         <div className="rounded-[20px] border border-[rgba(7,33,38,0.16)] bg-white p-6 sm:p-8 animate-pulse space-y-6">
           <div className="h-5 bg-gray-200 rounded w-1/3" />
           <div className="h-14 bg-gray-200 rounded-2xl" />
@@ -118,12 +138,12 @@ const Transfer = () => {
 
   if (!transferEnabled) {
     return (
-      <div className="max-w-[660px] mx-auto">
+      <div className="max-w-[660px] mx-auto pt-6 sm:pt-10">
         <div className="rounded-[20px] border border-[rgba(7,33,38,0.16)] bg-white p-6 sm:p-8">
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
               <svg className="w-8 h-8 text-grayish/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
             <p className="text-grayish/60 text-base">{t("dashboard.transferNotEnabled")}</p>
@@ -136,7 +156,7 @@ const Transfer = () => {
   return (
     <>
       {step === 1 && (
-        <div className="max-w-[660px] mx-auto space-y-5">
+        <div className="max-w-[660px] mx-auto pt-6 sm:pt-10 space-y-5">
           {/* Balance Card */}
           <div className="rounded-[20px] bg-gradient-to-br from-[#072126] to-[#0d2d33] p-6 sm:p-8 text-white relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-[#44F1A6]/10 rounded-full -translate-y-1/2 translate-x-1/4" />
@@ -159,7 +179,7 @@ const Transfer = () => {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-grayish">{t("dashboard.sendMoneyTitle") || t("dashboard.sendMoney")}</h3>
-                <p className="text-sm text-grayish/60">{t("sendMoneyTitle")}</p>
+                <p className="text-sm text-grayish/60">{t("sendMoney.subtitle") || t("sendMoneyTitle")}</p>
               </div>
             </div>
 
@@ -184,7 +204,9 @@ const Transfer = () => {
                 {isLookingUp && (
                   <div className="flex items-center gap-2 mt-2">
                     <div className="w-4 h-4 border-2 border-[#44F1A6]/30 border-t-[#44F1A6] rounded-full animate-spin" />
-                    <span className="text-xs text-grayish/60">{t("dashboard.lookingUp") || "Looking up recipient..."}</span>
+                    <span className="text-xs text-grayish/60">
+                      {t("dashboard.lookingUp") === "dashboard.lookingUp" ? "Looking up recipient..." : t("dashboard.lookingUp")}
+                    </span>
                   </div>
                 )}
 
@@ -195,6 +217,10 @@ const Transfer = () => {
                     </svg>
                     <span className="text-sm font-semibold text-grayish">{recipientName}</span>
                   </div>
+                )}
+
+                {lookupAttempted && lookupNotFound && !isLookingUp && (
+                  <p className="text-xs text-red-500 mt-1.5 font-medium">No user found with this phone number</p>
                 )}
               </div>
 
@@ -239,7 +265,7 @@ const Transfer = () => {
       )}
 
       {step === 2 && successData && (
-        <div className="max-w-[660px] mx-auto">
+        <div className="max-w-[660px] mx-auto pt-6 sm:pt-10">
           <div className="rounded-[20px] border border-[rgba(7,33,38,0.16)] bg-white overflow-hidden">
             {/* Success Header */}
             <div className="relative bg-gradient-to-br from-[#072126] to-[#0d2d33] px-6 sm:px-8 py-10 text-center overflow-hidden">
@@ -254,7 +280,7 @@ const Transfer = () => {
                   </svg>
                 </div>
                 <h3 className="text-xl font-bold text-white mb-1">{t("dashboard.sendMoneySuccess")}</h3>
-                <p className="text-white/70 text-sm">{t("dashboard.yourWithdrawCompletedSuccessfully")}</p>
+                <p className="text-white/70 text-sm">{t("dashboard.yourWithdrawCompletedSuccessfully") || t("sendMoney.successMessage")}</p>
               </div>
             </div>
 

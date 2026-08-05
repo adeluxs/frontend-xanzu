@@ -3,10 +3,11 @@ import Image from "next/image";
 import { useT } from "@/context/TranslationContext";
 import {
   useGetTransferConfigQuery,
+  useLookupTransferRecipientQuery,
   useSendTransferMutation,
   useValidateTransferMutation,
 } from "@/lib/features/transfer/transferApi";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 
 const Transfer = () => {
@@ -15,17 +16,44 @@ const Transfer = () => {
   const [step, setStep] = useState(1);
   const [successData, setSuccessData] = useState(null);
   const [errors, setErrors] = useState({});
+  const [recipientName, setRecipientName] = useState("");
+  const [lookupNotFound, setLookupNotFound] = useState(false);
+  const [lookupAttempted, setLookupAttempted] = useState(false);
 
   const { data: configData, isLoading: configLoading } =
     useGetTransferConfigQuery({});
-  const [sendTransfer, { isLoading: isSubmitting }] =
-    useSendTransferMutation();
-  const [validateTransfer, { isLoading: isValidating }] =
-    useValidateTransferMutation();
+  const { data: lookupData, isLoading: isLookingUp } =
+    useLookupTransferRecipientQuery(recipientPhone, {
+      skip: !recipientPhone || recipientPhone.trim().length < 3,
+    });
 
   const t = useT();
   const balance = configData?.data?.user_balance ?? 0;
   const transferEnabled = configData?.data?.transfer_status === 1;
+
+  useEffect(() => {
+    if (!lookupData) {
+      setRecipientName("");
+      setLookupNotFound(false);
+      setLookupAttempted(false);
+      return;
+    }
+
+    setLookupAttempted(true);
+
+    if (lookupData.status === true && lookupData.data?.full_name) {
+      setRecipientName(lookupData.data.full_name);
+      setLookupNotFound(false);
+    } else {
+      setRecipientName("");
+      setLookupNotFound(true);
+    }
+  }, [lookupData]);
+
+  useEffect(() => {
+    setLookupNotFound(false);
+    setLookupAttempted(false);
+  }, [recipientPhone]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -90,6 +118,9 @@ const Transfer = () => {
     setSuccessData(null);
     setStep(1);
     setErrors({});
+    setRecipientName("");
+    setLookupNotFound(false);
+    setLookupAttempted(false);
   };
 
   if (configLoading) {
@@ -112,7 +143,7 @@ const Transfer = () => {
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
               <svg className="w-8 h-8 text-grayish/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
             <p className="text-grayish/60 text-base">{t("dashboard.transferNotEnabled")}</p>
@@ -168,6 +199,28 @@ const Transfer = () => {
                 </div>
                 {errors.recipientPhone && (
                   <p className="text-xs text-red-500 mt-1.5 font-medium">{errors.recipientPhone}</p>
+                )}
+
+                {isLookingUp && (
+                  <div className="flex items-center gap-2 mt-2">
+                    <div className="w-4 h-4 border-2 border-[#44F1A6]/30 border-t-[#44F1A6] rounded-full animate-spin" />
+                    <span className="text-xs text-grayish/60">
+                      {t("dashboard.lookingUp") === "dashboard.lookingUp" ? "Looking up recipient..." : t("dashboard.lookingUp")}
+                    </span>
+                  </div>
+                )}
+
+                {recipientName && !isLookingUp && (
+                  <div className="flex items-center gap-2 mt-2">
+                    <svg className="w-4 h-4 text-[#44F1A6]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-sm font-semibold text-grayish">{recipientName}</span>
+                  </div>
+                )}
+
+                {lookupAttempted && lookupNotFound && !isLookingUp && (
+                  <p className="text-xs text-red-500 mt-1.5 font-medium">No user found with this phone number</p>
                 )}
               </div>
 
@@ -245,7 +298,7 @@ const Transfer = () => {
                 </div>
                 <div className="h-px bg-[rgba(7,33,38,0.06)]" />
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-grayish/70 font-medium">{t("dashboard.status") || "Status"}</span>
+                  <span className="text-sm text-grayish/70 font-medium">Status</span>
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#44F1A6]/10 text-[#2CA77B]">
                     {t("dashboard.sendMoneySuccess")}
                   </span>
