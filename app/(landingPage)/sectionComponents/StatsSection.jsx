@@ -1,7 +1,12 @@
+import {
+  backgroundImageStyle,
+  isRemoteMediaSource,
+  normalizeMediaSource,
+} from "@/utils/media";
 import Image from "next/image";
 
 const StatsSection = ({ data, contents = [] }) => {
-  const backgroundImage = data?.background_image;
+  const backgroundImage = normalizeMediaSource(data?.background_image);
   const stats =
     contents?.length > 0
       ? contents?.map((stat, index) => ({
@@ -14,9 +19,7 @@ const StatsSection = ({ data, contents = [] }) => {
   return (
     <section
       className="py-8 sm:py-10 md:py-12.5 bg-cover bg-no-repeat bg-center w-full h-full"
-      style={{
-        backgroundImage: `url('${backgroundImage}')`,
-      }}
+      style={backgroundImageStyle(backgroundImage)}
     >
       <div className="custom-container mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-4">
@@ -25,16 +28,19 @@ const StatsSection = ({ data, contents = [] }) => {
               key={i}
               className="flex items-center justify-start lg:justify-center gap-4"
             >
-              <div className="w-9 h-9 flex-shrink-0 flex items-center justify-center">
-                <Image
-                  src={stat?.icon}
-                  alt="stat icon"
-                  width={50}
-                  height={50}
-                  className="w-full h-full object-cover"
-                  unoptimized={typeof stat?.icon === "string"}
-                />
-              </div>
+              {normalizeMediaSource(stat?.icon) && (
+                <div className="w-9 h-9 flex-shrink-0 flex items-center justify-center">
+                  <Image
+                    src={normalizeMediaSource(stat.icon)}
+                    alt="stat icon"
+                    width={50}
+                    height={50}
+                    sizes="36px"
+                    className="w-full h-full object-cover"
+                    unoptimized={isRemoteMediaSource(stat.icon)}
+                  />
+                </div>
+              )}
               <div>
                 <p className="text-white font-bold text-xl md:text-2xl leading-tight mb-1.5 md:mb-2.5">
                   {stat?.value}

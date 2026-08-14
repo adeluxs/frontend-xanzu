@@ -4,9 +4,8 @@ import { useGetSettingsQuery } from "@/lib/features/globalSettings/globalSetting
 
 export default function SettingsProvider({ children }) {
   useGetSettingsQuery(undefined, {
-    refetchOnFocus: true,
     refetchOnReconnect: true,
-    pollingInterval: 6000000, // optional
+    refetchOnMountOrArgChange: 300,
   });
 
   return children;

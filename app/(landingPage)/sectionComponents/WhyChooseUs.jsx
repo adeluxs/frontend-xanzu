@@ -1,3 +1,4 @@
+import { isRemoteMediaSource, normalizeMediaSource } from "@/utils/media";
 import Image from "next/image";
 
 const WhyChooseUs = ({ data, contents = [] }) => {
@@ -26,16 +27,19 @@ const WhyChooseUs = ({ data, contents = [] }) => {
                 key={i}
                 className="p-4 sm:p-5 xl:p-7.5 flex flex-col items-center"
               >
-                <div className="w-8 sm:w-12.5 h-8 sm:h-12.5 flex-shrink-0 mb-3 sm:mb-5 xl:mb-10">
-                  <Image
-                    src={whyChooseList?.icon}
-                    alt="why choose us icon"
-                    width={50}
-                    height={50}
-                    className="w-full h-full object-cover"
-                    unoptimized={typeof whyChooseList?.icon === "string"}
-                  />
-                </div>
+                {normalizeMediaSource(whyChooseList?.icon) && (
+                  <div className="w-8 sm:w-12.5 h-8 sm:h-12.5 flex-shrink-0 mb-3 sm:mb-5 xl:mb-10">
+                    <Image
+                      src={normalizeMediaSource(whyChooseList.icon)}
+                      alt="why choose us icon"
+                      width={50}
+                      height={50}
+                      sizes="50px"
+                      className="w-full h-full object-cover"
+                      unoptimized={isRemoteMediaSource(whyChooseList.icon)}
+                    />
+                  </div>
+                )}
                 <div>
                   <h5 className="text-base sm:text-xl lg:text-2xl font-bold text-grayish text-center mb-1.5 sm:mb-2.5">
                     {whyChooseList?.title}

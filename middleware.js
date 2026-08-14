@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { transformSettingsArray } from "./utils/serverUtils";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_URL = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/+$/, "");
 
 const AUTH_ENTRY_ROUTES = ["/auth/login", "/auth/register"];
 const EMAIL_VERIFY_ROUTES = ["/auth/verify-email", "/auth/verify-email-otp"];
@@ -10,6 +10,18 @@ const TWO_FA_ROUTE = "/auth/verify-2fa";
 const KYC_CHECK_ROUTE = "/auth/kyc-check";
 const KYC_RESUBMIT_ROUTE = "/auth/kyc-resubmit";
 const MAINTENANCE_ROUTE = "/maintenance";
+const SUSPENSION_ROUTE = "/service-suspended";
+
+function isEnabled(value) {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return value === 1;
+
+  return ["1", "true", "yes", "on", "enabled", "active"].includes(
+    String(value ?? "")
+      .trim()
+      .toLowerCase(),
+  );
+}
 
 function isRouteMatch(pathname, routes) {
   return routes.some(
@@ -38,7 +50,9 @@ async function getJson(endpoint, token, revalidate = 0) {
 
   const response = await fetch(`${API_URL}${endpoint}`, {
     headers,
-    next: revalidate > 0 ? { revalidate } : { noStore: true },
+    ...(revalidate > 0
+      ? { next: { revalidate } }
+      : { cache: "no-store" }),
   });
 
   if (!response.ok) {
@@ -59,7 +73,7 @@ async function resolveAuthenticatedPath(token, settings) {
   const kycStatus = Number(userData.kyc);
 
   if (
-    settings.email_verification === "1" &&
+    isEnabled(settings.email_verification) &&
     userData.is_email_verified === false
   ) {
     return "/auth/verify-email";
@@ -73,7 +87,7 @@ async function resolveAuthenticatedPath(token, settings) {
     return "/auth/kyc-resubmit";
   }
 
-  if (settings.fa_verification === "1" && userData.two_fa === true) {
+  if (isEnabled(settings.fa_verification) && userData.two_fa === true) {
     return "/auth/verify-2fa";
   }
 
@@ -95,9 +109,28 @@ export async function middleware(request) {
   let settings = {};
 
   try {
-    const settingsResponse = await getJson("/get-settings", token, 300);
+    // This read stays fresh because it is the authority for the global lock.
+    // The backend settings model is cached and flushed by service:access.
+    const settingsResponse = await getJson("/get-settings");
     settings = transformSettingsArray(settingsResponse?.data || []);
   } catch {}
+
+  const isSuspensionRoute =
+    pathname === SUSPENSION_ROUTE ||
+    pathname.startsWith(`${SUSPENSION_ROUTE}/`);
+  const isServiceSuspended = isEnabled(settings.service_suspended);
+
+  if (isServiceSuspended) {
+    if (!isSuspensionRoute) {
+      return buildRedirectResponse(request, SUSPENSION_ROUTE);
+    }
+
+    return NextResponse.next();
+  }
+
+  if (isSuspensionRoute) {
+    return buildRedirectResponse(request, "/");
+  }
 
   const isMaintenanceRoute =
     pathname === MAINTENANCE_ROUTE ||
@@ -120,7 +153,7 @@ export async function middleware(request) {
   const isVerificationRoute =
     isEmailVerifyRoute || isTwoFaRoute || isKycCheckRoute || isKycResubmitRoute;
 
-  const isMaintenanceEnabled = settings.maintenance_mode === "1";
+  const isMaintenanceEnabled = isEnabled(settings.maintenance_mode);
 
   if (isMaintenanceEnabled) {
     if (!isMaintenanceRoute) {
@@ -139,6 +172,12 @@ export async function middleware(request) {
       return buildRedirectResponse(request, "/auth/login");
     }
 
+    return NextResponse.next();
+  }
+
+  // Public pages do not need an authenticated /user round trip. The header
+  // performs its own cached client query when it needs account information.
+  if (!isProtectedRoute && !isVerificationRoute && !isAuthEntryRoute) {
     return NextResponse.next();
   }
 

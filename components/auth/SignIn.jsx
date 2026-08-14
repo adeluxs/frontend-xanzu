@@ -77,18 +77,18 @@ const SignIn = () => {
       const userData = user?.data?.user ?? user?.data;
 
       if (userData) {
+        const kycStatus = Number(userData.kyc);
+
         if (
           siteEmailVerification === "1" &&
           userData.is_email_verified === false
         ) {
           router.push("/auth/verify-email");
           return;
-        } else if (
-          userData.kyc === 0 &&
-          userData.kyc === 2 &&
-          userData.kyc === 3
-        ) {
+        } else if (kycStatus === 2) {
           router.push("/auth/kyc-check");
+        } else if ([0, 3].includes(kycStatus)) {
+          router.push("/auth/kyc-resubmit");
         } else if (userData.two_fa === true && siteTwoFa === "1") {
           router.push("/auth/verify-2fa");
         } else {

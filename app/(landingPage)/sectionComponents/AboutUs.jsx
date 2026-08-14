@@ -1,35 +1,41 @@
 import { PointIcon } from "@/icons";
+import {
+  backgroundImageStyle,
+  isRemoteMediaSource,
+  normalizeMediaSource,
+} from "@/utils/media";
 import Image from "next/image";
 
 const AboutUs = ({ data, contents = [] }) => {
   const title = data?.title;
   const description = data?.description;
-  const backgroundImage = data?.background_image;
-  const leftImage = data?.left_image;
+  const backgroundImage = normalizeMediaSource(data?.background_image);
+  const leftImage = normalizeMediaSource(data?.left_image);
   const items = contents.length > 0 ? contents : [];
 
   return (
     <section
       className="section_space-py bg-cover bg-no-repeat bg-center w-full h-full"
-      style={{
-        backgroundImage: `url('${backgroundImage}')`,
-      }}
+      style={backgroundImageStyle(backgroundImage)}
       id="about"
     >
       <div className="custom-container mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-7.5 items-center">
-          <div className="ltr:pl-0 ltr:pr-0 rtl:pl-0 rtl:pr-0 2xl:ltr:pr-[112px] 2xl:ltr:pl-0 2xl:rtl:pl-[112px] 2xl:rtl:pr-0">
-            <div className="w-full h-full lg:h-[500px] 3xl:h-[620px] rounded-3xl md:rounded-[30px] overflow-hidden">
-              <Image
-                src={leftImage}
-                alt="about us"
-                width={950}
-                height={950}
-                className="w-full h-full object-cover"
-                unoptimized={leftImage.startsWith("http")}
-              />
+          {leftImage && (
+            <div className="ltr:pl-0 ltr:pr-0 rtl:pl-0 rtl:pr-0 2xl:ltr:pr-[112px] 2xl:ltr:pl-0 2xl:rtl:pl-[112px] 2xl:rtl:pr-0">
+              <div className="w-full h-full lg:h-[500px] 3xl:h-[620px] rounded-3xl md:rounded-[30px] overflow-hidden">
+                <Image
+                  src={leftImage}
+                  alt="about us"
+                  width={950}
+                  height={950}
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="w-full h-full object-cover"
+                  unoptimized={isRemoteMediaSource(leftImage)}
+                />
+              </div>
             </div>
-          </div>
+          )}
           <div>
             <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl 2xl:text-[52px] leading-[36px] md:leading-[46px] lg:leading-[62px] font-bold text-white w-full 2xl:w-[70%] mb-3 sm:mb-5 lg:mb-7.5">
               {title}

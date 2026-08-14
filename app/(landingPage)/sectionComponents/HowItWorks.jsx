@@ -1,9 +1,10 @@
+import { isRemoteMediaSource, normalizeMediaSource } from "@/utils/media";
 import Image from "next/image";
 
 const HowItWorks = ({ data, contents = [] }) => {
   const title = data?.title;
   const backgroundImage = data?.background_image;
-  const rightImage = data?.right_image;
+  const rightImage = normalizeMediaSource(data?.right_image);
   const steps =
     contents?.length > 0
       ? contents?.map((step, index) => ({
@@ -34,16 +35,19 @@ const HowItWorks = ({ data, contents = [] }) => {
                   className="flex flex-col sm:flex-row gap-5 sm:gap-6 xl:gap-10"
                 >
                   <div className="flex flex-col items-start sm:items-center">
-                    <div className="w-8 sm:w-10 h-8 sm:h-10 flex-shrink-0">
-                      <Image
-                        src={step?.icon}
-                        alt="step icon"
-                        width={50}
-                        height={50}
-                        className="w-full h-full object-cover"
-                        unoptimized={typeof step?.icon === "string"}
-                      />
-                    </div>
+                    {normalizeMediaSource(step?.icon) && (
+                      <div className="w-8 sm:w-10 h-8 sm:h-10 flex-shrink-0">
+                        <Image
+                          src={normalizeMediaSource(step.icon)}
+                          alt="step icon"
+                          width={50}
+                          height={50}
+                          sizes="40px"
+                          className="w-full h-full object-cover"
+                          unoptimized={isRemoteMediaSource(step.icon)}
+                        />
+                      </div>
+                    )}
 
                     {i < steps?.length - 1 && (
                       <div className="hidden sm:block sm:flex-1 border-l-2 border-dashed border-[#596A6E] my-2 min-h-[50px] xl:min-h-[77px]" />
@@ -63,18 +67,21 @@ const HowItWorks = ({ data, contents = [] }) => {
             </div>
           </div>
 
-          <div className="col-span-2 lg:col-span-6 xl:col-span-5">
-            <div className="w-full h-full lg:h-[500px] 3xl:h-[620px] rounded-3xl md:rounded-[30px] overflow-hidden">
-              <Image
-                src={rightImage}
-                alt="how it works"
-                width={1250}
-                height={1250}
-                className="w-full h-auto object-cover"
-                unoptimized={rightImage.startsWith("http")}
-              />
+          {rightImage && (
+            <div className="col-span-2 lg:col-span-6 xl:col-span-5">
+              <div className="w-full h-full lg:h-[500px] 3xl:h-[620px] rounded-3xl md:rounded-[30px] overflow-hidden">
+                <Image
+                  src={rightImage}
+                  alt="how it works"
+                  width={1250}
+                  height={1250}
+                  sizes="(max-width: 1024px) 100vw, 42vw"
+                  className="w-full h-auto object-cover"
+                  unoptimized={isRemoteMediaSource(rightImage)}
+                />
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </section>

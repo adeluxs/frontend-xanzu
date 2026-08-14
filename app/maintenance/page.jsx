@@ -1,4 +1,5 @@
 import { loadSiteSettings } from "@/utils/serverUtils";
+import { isRemoteMediaSource } from "@/utils/media";
 import Image from "next/image";
 import MaintenanceRefreshButton from "./MaintenanceRefreshButton";
 
@@ -38,7 +39,7 @@ export default async function MaintenancePage() {
               width={180}
               height={48}
               className="h-[24px] w-auto object-contain sm:h-[28px]"
-              unoptimized={logo.startsWith("http")}
+              unoptimized={isRemoteMediaSource(logo)}
               priority
             />
           </div>

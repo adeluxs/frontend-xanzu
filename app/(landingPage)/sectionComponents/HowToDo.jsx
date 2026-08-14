@@ -1,15 +1,16 @@
+import { isRemoteMediaSource, normalizeMediaSource } from "@/utils/media";
 import Image from "next/image";
 
 const HowToDo = ({ data }) => {
   const title = data?.title;
   const description = data?.description;
-  const rightImage = data?.right_image;
+  const rightImage = normalizeMediaSource(data?.right_image);
   const bullets = [
     data?.bullet_one,
     data?.bullet_two,
     data?.bullet_three,
     data?.bullet_four,
-  ];
+  ].filter((bullet) => typeof bullet === "string" && bullet.trim());
 
   return (
     <section className="section_space-py">
@@ -28,18 +29,21 @@ const HowToDo = ({ data }) => {
               </ul>
             </div>
           </div>
-          <div>
-            <div className="w-full h-full lg:h-[500px] 3xl:h-[645px] rounded-4xl md:rounded-[100px] overflow-hidden">
-              <Image
-                src={rightImage}
-                alt="pay in 4"
-                width={950}
-                height={950}
-                className="w-full h-full object-cover"
-                unoptimized={rightImage.startsWith("http")}
-              />
+          {rightImage && (
+            <div>
+              <div className="w-full h-full lg:h-[500px] 3xl:h-[645px] rounded-4xl md:rounded-[100px] overflow-hidden">
+                <Image
+                  src={rightImage}
+                  alt="pay in 4"
+                  width={950}
+                  height={950}
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="w-full h-full object-cover"
+                  unoptimized={isRemoteMediaSource(rightImage)}
+                />
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </section>

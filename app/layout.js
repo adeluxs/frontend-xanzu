@@ -8,22 +8,23 @@ import {
   loadLanguages,
   loadSiteSettings,
 } from "@/utils/serverUtils";
-import { Outfit } from "next/font/google";
 import { ToastContainer } from "react-toastify";
 import "./globals.css";
 
 export const dynamic = "force-dynamic";
 
-const outfit = Outfit({
-  subsets: ["latin"],
-  variable: "--font-outfit",
-});
-
 export async function generateMetadata() {
   try {
     const settings = await loadSiteSettings();
-    const siteTitle = settings?.site_title;
-    const siteFavicon = settings?.site_favicon;
+    const siteTitle =
+      typeof settings?.site_title === "string" && settings.site_title.trim()
+        ? settings.site_title.trim()
+        : "BNPL";
+    const siteFavicon =
+      typeof settings?.site_favicon === "string" &&
+      settings.site_favicon.trim()
+        ? settings.site_favicon.trim()
+        : "/favicon.png";
 
     return {
       title: siteTitle,
@@ -48,15 +49,13 @@ export default async function RootLayout({ children }) {
   const locale = await getLocale();
   const dictionary = await getDictionary(locale);
   const languages = await loadLanguages();
-  const selectedLanguage = getSelectedLanguage(languages, locale) || languages[0] || { is_rtl: false };
+  const selectedLanguage = getSelectedLanguage(languages, locale) || {
+    is_rtl: false,
+  };
 
   return (
-    <html
-      lang={locale}
-      className={`${outfit.variable}`}
-      dir={selectedLanguage.is_rtl ? "rtl" : "ltr"}
-    >
-      <body className={outfit.className}>
+    <html lang={locale} dir={selectedLanguage.is_rtl ? "rtl" : "ltr"}>
+      <body>
         <StoreProvider>
           <TranslationProvider
             initialLang={locale}

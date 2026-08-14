@@ -1,19 +1,22 @@
+import {
+  backgroundImageStyle,
+  isRemoteMediaSource,
+  normalizeMediaSource,
+} from "@/utils/media";
 import Image from "next/image";
 
 const HeroSection = ({ data }) => {
   const heroTitle = data?.hero_title;
   const heroDescription = data?.hero_description;
-  const backgroundImage = data?.background_image;
-  const heroImage = data?.hero_image;
-  const qrImage = data?.qr_image;
+  const backgroundImage = normalizeMediaSource(data?.background_image);
+  const heroImage = normalizeMediaSource(data?.hero_image);
+  const qrImage = normalizeMediaSource(data?.qr_image);
   const qrText = data?.qr_text;
 
   return (
     <div
       className="pt-[40px] sm:pt-[50px] md:pt-[60px] lg:pt-[70px] xl:pt-[90px] bg-cover bg-no-repeat w-full h-full relative overflow-hidden"
-      style={{
-        backgroundImage: `url('${backgroundImage}')`,
-      }}
+      style={backgroundImageStyle(backgroundImage)}
     >
       <div className="relative custom-container mx-auto">
         <div className="flex flex-col items-center text-center max-w-[581px] mx-auto">
@@ -26,29 +29,36 @@ const HeroSection = ({ data }) => {
         </div>
 
         <div className="mt-[40px] sm:mt-[50px] md:mt-[60px] lg:mt-[70px] xl:mt-[110px] flex sm:flex-row flex-col items-center justify-center gap-5 sm:gap-10 lg:gap-[70px] relative">
-          <div className="relative w-[200px] md:w-[324px] h-auto flex-shrink-0 order-2 sm:order-1">
-            <Image
-              src={heroImage}
-              alt="hero"
-              width={450}
-              height={440}
-              className="w-full h-auto object-contain"
-              unoptimized={heroImage.startsWith("http")}
-            />
-          </div>
+          {heroImage && (
+            <div className="relative w-[200px] md:w-[324px] h-auto flex-shrink-0 order-2 sm:order-1">
+              <Image
+                src={heroImage}
+                alt="hero"
+                width={450}
+                height={440}
+                sizes="(max-width: 768px) 200px, 324px"
+                className="w-full h-auto object-contain"
+                unoptimized={isRemoteMediaSource(heroImage)}
+                priority
+              />
+            </div>
+          )}
 
           <div className="flex-shrink-0 order-1 sm:order-2">
             <div className="rounded-2xl border-2 border-[rgba(7,33,38,0.16)] p-2.5 flex items-center gap-3 sm:gap-4">
-              <div className="w-[50px] md:w-[96px] h-[50px] md:h-[96px] flex-shrink-0 rounded-lg overflow-hidden">
-                <Image
-                  src={qrImage}
-                  alt="qr"
-                  width={450}
-                  height={440}
-                  className="w-full h-auto object-contain"
-                  unoptimized={qrImage.startsWith("http")}
-                />
-              </div>
+              {qrImage && (
+                <div className="w-[50px] md:w-[96px] h-[50px] md:h-[96px] flex-shrink-0 rounded-lg overflow-hidden">
+                  <Image
+                    src={qrImage}
+                    alt="qr"
+                    width={96}
+                    height={96}
+                    sizes="(max-width: 768px) 50px, 96px"
+                    className="w-full h-auto object-contain"
+                    unoptimized={isRemoteMediaSource(qrImage)}
+                  />
+                </div>
+              )}
               <p className="text-grayish text-base sm:text-lg md:text-xl font-medium leading-snug whitespace-pre-line w-[40%]">
                 {qrText}
               </p>

@@ -3,9 +3,10 @@ export function transformRegisterSettings(settings = []) {
   let customFields = [];
 
   settings.forEach((item) => {
-    const { key, value } = item;
+    const key = typeof item?.key === "string" ? item.key : "";
+    const value = item?.value;
 
-    if (!key.includes("_")) return;
+    if (!key || !key.includes("_")) return;
 
     // merchant / agent ignore
     if (key.startsWith("merchant_")) return;
