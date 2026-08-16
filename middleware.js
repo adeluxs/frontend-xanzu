@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
 import { transformSettingsArray } from "./utils/serverUtils";
 
-const API_URL = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/+$/, "");
+const API_URL = (
+  process.env.API_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  ""
+).replace(/\/+$/, "");
+
+const API_DEBUG = process.env.FRONTEND_API_DEBUG === "true";
 
 const AUTH_ENTRY_ROUTES = ["/auth/login", "/auth/register"];
 const EMAIL_VERIFY_ROUTES = ["/auth/verify-email", "/auth/verify-email-otp"];
@@ -40,6 +46,8 @@ function buildRedirectResponse(request, pathname, clearToken = false) {
 }
 
 async function getJson(endpoint, token, revalidate = 0) {
+  const url = `${API_URL}${endpoint}`;
+  const startedAt = Date.now();
   const headers = {
     Accept: "application/json",
   };
@@ -48,18 +56,57 @@ async function getJson(endpoint, token, revalidate = 0) {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_URL}${endpoint}`, {
-    headers,
-    ...(revalidate > 0
-      ? { next: { revalidate } }
-      : { cache: "no-store" }),
-  });
+  let response;
 
-  if (!response.ok) {
-    throw new Error(`Request failed for ${endpoint}`);
+  try {
+    response = await fetch(url, {
+      headers,
+      ...(revalidate > 0
+        ? { next: { revalidate } }
+        : { cache: "no-store" }),
+    });
+  } catch (error) {
+    console.error("[API:proxy] network request failed", {
+      url,
+      duration_ms: Date.now() - startedAt,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    throw error;
   }
 
-  return response.json();
+  const body = await response.text();
+  const details = {
+    url,
+    status: response.status,
+    status_text: response.statusText,
+    request_id: response.headers.get("x-request-id") || undefined,
+    content_type: response.headers.get("content-type") || undefined,
+    duration_ms: Date.now() - startedAt,
+  };
+
+  if (!response.ok) {
+    console.error("[API:proxy] request failed", {
+      ...details,
+      response:
+        body.replace(/\s+/g, " ").trim().slice(0, 500) || "<empty response>",
+    });
+    throw new Error(`Request failed for ${endpoint} (${response.status})`);
+  }
+
+  if (API_DEBUG) {
+    console.info("[API:proxy] request succeeded", details);
+  }
+
+  try {
+    return body ? JSON.parse(body) : null;
+  } catch (error) {
+    console.error("[API:proxy] invalid JSON response", {
+      ...details,
+      response:
+        body.replace(/\s+/g, " ").trim().slice(0, 500) || "<empty response>",
+    });
+    throw error;
+  }
 }
 
 async function resolveAuthenticatedPath(token, settings) {

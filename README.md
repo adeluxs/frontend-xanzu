@@ -33,10 +33,25 @@ Set the Laravel API base URL without a trailing slash. The production MozaPay
 deployment uses:
 
 ```env
+API_URL=https://mozapay.app/backend/api
 NEXT_PUBLIC_API_URL=https://mozapay.app/backend/api
+FRONTEND_API_DEBUG=false
 ```
 
 Copy `.env.example` to `.env.production` before running `npm run build`.
+`API_URL` is used by server rendering and middleware. `NEXT_PUBLIC_API_URL` is
+embedded into the browser bundle for dashboard requests, so both values must be
+set before building. Set `FRONTEND_API_DEBUG=true` temporarily when diagnosing
+the deployment; failed requests are always logged with their URL, status,
+request ID and a short response excerpt.
+
+Verify Laravel is reachable before starting Next.js:
+
+```bash
+curl -i https://mozapay.app/backend/up
+curl -i https://mozapay.app/backend/api/get-settings
+curl -i https://mozapay.app/backend/api/get-languages
+```
 
 ## Global service suspension
 

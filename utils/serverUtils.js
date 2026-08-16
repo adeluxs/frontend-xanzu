@@ -1,11 +1,86 @@
-const baseUrl = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/+$/, "");
+const getBaseUrl = () => {
+  const configuredUrl =
+    typeof window === "undefined"
+      ? process.env.API_URL || process.env.NEXT_PUBLIC_API_URL
+      : process.env.NEXT_PUBLIC_API_URL;
+
+  return (configuredUrl || "").replace(/\/+$/, "");
+};
 
 const apiUrl = (path) => {
+  const baseUrl = getBaseUrl();
+
   if (!baseUrl) {
-    throw new Error("NEXT_PUBLIC_API_URL is not configured");
+    throw new Error(
+      "API URL is not configured. Set API_URL and NEXT_PUBLIC_API_URL.",
+    );
   }
 
   return `${baseUrl}${path}`;
+};
+
+const debugEnabled =
+  typeof window === "undefined" && process.env.FRONTEND_API_DEBUG === "true";
+
+const responseExcerpt = (body) =>
+  body.replace(/\s+/g, " ").trim().slice(0, 500) || "<empty response>";
+
+const requestJson = async (label, path, options = {}) => {
+  const url = apiUrl(path);
+  const startedAt = Date.now();
+  let response;
+
+  try {
+    response = await fetch(url, {
+      ...options,
+      headers: {
+        Accept: "application/json",
+        ...options.headers,
+      },
+    });
+  } catch (error) {
+    console.error(`[API:${label}] network request failed`, {
+      url,
+      duration_ms: Date.now() - startedAt,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    throw error;
+  }
+
+  const body = await response.text();
+  const requestId = response.headers.get("x-request-id");
+  const details = {
+    url,
+    status: response.status,
+    status_text: response.statusText,
+    request_id: requestId || undefined,
+    content_type: response.headers.get("content-type") || undefined,
+    duration_ms: Date.now() - startedAt,
+  };
+
+  if (!response.ok) {
+    console.error(`[API:${label}] request failed`, {
+      ...details,
+      response: responseExcerpt(body),
+    });
+    throw new Error(`${label} request failed (${response.status})`);
+  }
+
+  try {
+    const data = body ? JSON.parse(body) : null;
+
+    if (debugEnabled) {
+      console.info(`[API:${label}] request succeeded`, details);
+    }
+
+    return data;
+  } catch (error) {
+    console.error(`[API:${label}] invalid JSON response`, {
+      ...details,
+      response: responseExcerpt(body),
+    });
+    throw error;
+  }
 };
 
 export const transformSettingsArray = (settings = []) => {
@@ -20,11 +95,9 @@ export const transformSettingsArray = (settings = []) => {
 
 export const loadLanguages = async () => {
   try {
-    const res = await fetch(apiUrl("/get-languages"), {
+    const data = await requestJson("languages", "/get-languages", {
       next: { revalidate: 300 },
     });
-    if (!res.ok) throw new Error(`Language request failed (${res.status})`);
-    const data = await res.json();
     return Array.isArray(data?.data) ? data.data : [];
   } catch (err) {
     console.error("Language load error:", err);
@@ -42,15 +115,9 @@ export const getSelectedLanguage = (languages = [], locale) => {
 
 export const loadSiteSettings = async ({ fresh = false } = {}) => {
   try {
-    const res = await fetch(apiUrl("/get-settings"), {
+    const data = await requestJson("settings", "/get-settings", {
       ...(fresh ? { cache: "no-store" } : { next: { revalidate: 300 } }),
     });
-
-    if (!res.ok) {
-      throw new Error("Failed to load settings");
-    }
-
-    const data = await res.json();
     return transformSettingsArray(data?.data || []);
   } catch (err) {
     console.error("Settings load error:", err);
@@ -67,15 +134,9 @@ export const buildPageTitle = async (pageTitle) => {
 
 export const loadLandingData = async (locale = "en") => {
   try {
-    const res = await fetch(apiUrl(`/landing-data/${locale}`), {
+    return await requestJson("landing", `/landing-data/${locale}`, {
       next: { revalidate: 300 },
     });
-
-    if (!res.ok) {
-      throw new Error("Failed to load landing data");
-    }
-
-    return res.json();
   } catch (err) {
     console.error("Landing data load error:", err);
     return null;
@@ -84,15 +145,9 @@ export const loadLandingData = async (locale = "en") => {
 
 export const loadNavigationData = async (locale = "en") => {
   try {
-    const res = await fetch(apiUrl(`/navigation/${locale}`), {
+    return await requestJson("navigation", `/navigation/${locale}`, {
       next: { revalidate: 300 },
     });
-
-    if (!res.ok) {
-      throw new Error("Failed to load navigation data");
-    }
-
-    return res.json();
   } catch (err) {
     console.error("Navigation data load error:", err);
     return null;
@@ -101,19 +156,9 @@ export const loadNavigationData = async (locale = "en") => {
 
 export const loadPageData = async (pageName) => {
   try {
-    const res = await fetch(apiUrl(`/page-data/${pageName}`), {
+    return await requestJson("page", `/page-data/${pageName}`, {
       next: { revalidate: 300 },
     });
-
-    if (res.status === 404) {
-      return null;
-    }
-
-    if (!res.ok) {
-      throw new Error("Failed to load page data");
-    }
-
-    return res.json();
   } catch (err) {
     console.error("Page data load error:", err);
     return null;
