@@ -29,11 +29,14 @@ npm run start
 
 ## Required environment
 
-Set the Laravel API base URL without a trailing slash:
+Set the Laravel API base URL without a trailing slash. The production MozaPay
+deployment uses:
 
 ```env
-NEXT_PUBLIC_API_URL=https://your-domain.example/api
+NEXT_PUBLIC_API_URL=https://mozapay.app/backend/api
 ```
+
+Copy `.env.example` to `.env.production` before running `npm run build`.
 
 ## Global service suspension
 
@@ -46,7 +49,7 @@ returns HTTP 503 with `code: SERVICE_SUSPENDED`.
 Use the Laravel server terminal to control access:
 
 ```bash
-php artisan service:access suspend --message="Payment has not been made. Please contact the service provider to restore access."
+php artisan service:access suspend --message="Payment has not been made. Please contact the Developer to restore access."
 php artisan service:access status
 php artisan service:access restore
 ```

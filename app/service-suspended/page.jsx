@@ -17,7 +17,7 @@ export default async function ServiceSuspendedPage() {
     typeof settings?.service_suspension_message === "string" &&
     settings.service_suspension_message.trim()
       ? settings.service_suspension_message.trim()
-      : "Payment has not been made. Please contact the service provider to restore access.";
+      : "Payment has not been made. Please contact the Developer to restore access.";
   const logo = normalizeMediaSource(
     settings?.site_logo_dark,
     "/assets/common/logo/logo.svg",
