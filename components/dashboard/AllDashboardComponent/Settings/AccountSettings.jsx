@@ -51,7 +51,11 @@ const stripDialCode = (phone = "", dialCode = "") => {
 
 const AccountSettings = () => {
   const fileInputRef = useRef(null);
-  const { data: user, isLoading: isUserLoading } = useGetUserQuery();
+  const {
+    data: user,
+    isLoading: isUserLoading,
+    refetch: refetchUser,
+  } = useGetUserQuery();
   const { data: countriesData, isLoading: isCountriesLoading } =
     useGetAllCountryQuery();
   const { data: registerSettingsData, isLoading: isSettingsLoading } =
@@ -134,9 +138,9 @@ const AccountSettings = () => {
   };
 
   // handle update
-  const handleUpdateUser = () => {
+  const handleUpdateUser = async () => {
     const formData = new FormData();
-    if (avatarFile) formData.append("avatar", avatarFile);
+    if (avatarFile) formData.append("avatar", avatarFile, avatarFile.name);
     if (fieldConfig?.first_name?.show) formData.append("first_name", firstName);
     if (fieldConfig?.last_name?.show) formData.append("last_name", lastName);
     if (fieldConfig?.username?.show) formData.append("username", username);
@@ -150,7 +154,21 @@ const AccountSettings = () => {
     formData.append("city", city);
     formData.append("zip_code", zip);
 
-    updateUser(formData);
+    try {
+      // fetchBaseQuery detects FormData and sets the multipart boundary itself.
+      // Do not manually set Content-Type here.
+      await updateUser(formData).unwrap();
+
+      // Do not keep re-uploading a previously submitted File on later profile
+      // edits. Refresh the user so the backend avatar URL becomes the source.
+      setAvatarFile(null);
+      fileInputRef.current?.reset();
+      const refreshed = await refetchUser();
+      const refreshedAvatar = refreshed?.data?.data?.avatar;
+      if (refreshedAvatar) setAvatar(refreshedAvatar);
+    } catch {
+      // userApi owns the visible backend validation/error toast.
+    }
   };
 
   // Return Skeleton while loading
@@ -164,6 +182,7 @@ const AccountSettings = () => {
         <div className="col-span-2 sm:col-span-12">
           <Label htmlFor="image">{t("dashboard.profilePhoto")}</Label>
           <FileUpload
+            ref={fileInputRef}
             accept=".png,.jpg,.jpeg,.gif"
             maxSizeMB={2}
             multiple={false}
