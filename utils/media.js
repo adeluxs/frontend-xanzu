@@ -97,6 +97,16 @@ export function normalizeMediaSource(value, fallback = null) {
     try {
       const parsed = new URL(candidate);
 
+      const nestedFrontendAsset = parsed.pathname.match(
+        /\/backend\/assets\/assets\/([^/]+)\/(.*)/i,
+      );
+      if (
+        nestedFrontendAsset &&
+        frontendPublicAssetFolders.has(nestedFrontendAsset[1].toLowerCase())
+      ) {
+        return `/assets/${nestedFrontendAsset[1]}/${nestedFrontendAsset[2]}`;
+      }
+
       if (isFrontendPublicAsset(parsed.pathname)) {
         return parsed.pathname;
       }
@@ -138,9 +148,15 @@ export function isRemoteMediaSource(value) {
   return /^https?:\/\//i.test(source);
 }
 
-export function backgroundImageStyle(value) {
-  const source = normalizeMediaSource(value);
-  return source ? { backgroundImage: `url("${source}")` } : undefined;
+export function backgroundImageStyle(value, fallback = null) {
+  const sources = [
+    normalizeMediaSource(value),
+    normalizeMediaSource(fallback),
+  ].filter((source, index, allSources) => source && allSources.indexOf(source) === index);
+
+  return sources.length > 0
+    ? { backgroundImage: sources.map((source) => `url("${source}")`).join(", ") }
+    : undefined;
 }
 
 export function normalizeLinkHref(value, fallback = "#") {

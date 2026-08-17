@@ -1,12 +1,12 @@
 "use client";
 import Button from "@/components/ui/button/Button";
+import SafeImage from "@/components/common/SafeImage";
 import LanguageDropdown from "@/components/ui/dropdowns/LanguageDropdown";
 import { useT } from "@/context/TranslationContext";
 import { useGetUserQuery } from "@/lib/features/user/userApi";
 import Cookies from "js-cookie";
 import { MenuIcon, X } from "lucide-react";
-import { isRemoteMediaSource, normalizeMediaSource } from "@/utils/media";
-import Image from "next/image";
+import { normalizeMediaSource } from "@/utils/media";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -25,10 +25,15 @@ const Header = ({ navigationData }) => {
   const siteEmailVerification = useSelector(
     (state) => state.settings.settings.email_verification,
   );
-  const logo = useSelector(
+  const darkLogo = useSelector(
     (state) => state?.settings?.settings?.site_logo_dark,
   );
+  const logo = useSelector((state) => state?.settings?.settings?.site_logo);
   const logoSource = normalizeMediaSource(
+    darkLogo,
+    "/assets/common/logo/logo.svg",
+  );
+  const logoFallback = normalizeMediaSource(
     logo,
     "/assets/common/logo/logo.svg",
   );
@@ -70,13 +75,13 @@ const Header = ({ navigationData }) => {
           <div className="flex items-center gap-10 3xl:gap-15">
             <Link href="/" className="h-[20px] sm:h-[22px] w-auto">
               {logoSource ? (
-                <Image
+                <SafeImage
                   src={logoSource}
+                  fallbackSrc={logoFallback}
                   alt="logo"
                   width={150}
                   height={40}
                   className="w-full h-full object-contain"
-                  unoptimized={isRemoteMediaSource(logoSource)}
                   priority
                 />
               ) : (

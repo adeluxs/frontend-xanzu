@@ -1,10 +1,12 @@
-import { isRemoteMediaSource, normalizeMediaSource } from "@/utils/media";
-import Image from "next/image";
+import SafeImage from "@/components/common/SafeImage";
+import { landingImageFallback } from "@/utils/landingFallbacks";
+import { normalizeMediaSource } from "@/utils/media";
 
 const HowToDo = ({ data }) => {
   const title = data?.title;
   const description = data?.description;
-  const rightImage = normalizeMediaSource(data?.right_image);
+  const rightFallback = landingImageFallback("pay-in-4", "right_image");
+  const rightImage = normalizeMediaSource(data?.right_image, rightFallback);
   const bullets = [
     data?.bullet_one,
     data?.bullet_two,
@@ -32,14 +34,14 @@ const HowToDo = ({ data }) => {
           {rightImage && (
             <div>
               <div className="w-full h-full lg:h-[500px] 3xl:h-[645px] rounded-4xl md:rounded-[100px] overflow-hidden">
-                <Image
+                <SafeImage
                   src={rightImage}
+                  fallbackSrc={rightFallback}
                   alt="pay in 4"
                   width={950}
                   height={950}
                   sizes="(max-width: 1024px) 100vw, 50vw"
                   className="w-full h-full object-cover"
-                  unoptimized={isRemoteMediaSource(rightImage)}
                 />
               </div>
             </div>

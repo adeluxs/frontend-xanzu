@@ -1,15 +1,19 @@
+import SafeImage from "@/components/common/SafeImage";
 import {
-  backgroundImageStyle,
-  isRemoteMediaSource,
-  normalizeMediaSource,
-} from "@/utils/media";
-import Image from "next/image";
+  landingContentImageFallback,
+  landingImageFallback,
+} from "@/utils/landingFallbacks";
+import { backgroundImageStyle, normalizeMediaSource } from "@/utils/media";
 
 const StatsSection = ({ data, contents = [] }) => {
-  const backgroundImage = normalizeMediaSource(data?.background_image);
+  const backgroundFallback = landingImageFallback("stats", "background_image");
+  const backgroundImage = normalizeMediaSource(
+    data?.background_image,
+    backgroundFallback,
+  );
   const stats =
     contents?.length > 0
-      ? contents?.map((stat, index) => ({
+      ? contents?.map((stat) => ({
           icon: stat?.icon,
           value: stat?.title,
           label: stat?.description,
@@ -19,7 +23,7 @@ const StatsSection = ({ data, contents = [] }) => {
   return (
     <section
       className="py-8 sm:py-10 md:py-12.5 bg-cover bg-no-repeat bg-center w-full h-full"
-      style={backgroundImageStyle(backgroundImage)}
+      style={backgroundImageStyle(backgroundImage, backgroundFallback)}
     >
       <div className="custom-container mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-4">
@@ -28,16 +32,19 @@ const StatsSection = ({ data, contents = [] }) => {
               key={i}
               className="flex items-center justify-start lg:justify-center gap-4"
             >
-              {normalizeMediaSource(stat?.icon) && (
+              {normalizeMediaSource(
+                stat?.icon,
+                landingContentImageFallback("stats", i),
+              ) && (
                 <div className="w-9 h-9 flex-shrink-0 flex items-center justify-center">
-                  <Image
-                    src={normalizeMediaSource(stat.icon)}
+                  <SafeImage
+                    src={stat?.icon}
+                    fallbackSrc={landingContentImageFallback("stats", i)}
                     alt="stat icon"
                     width={50}
                     height={50}
                     sizes="36px"
                     className="w-full h-full object-cover"
-                    unoptimized={isRemoteMediaSource(stat.icon)}
                   />
                 </div>
               )}

@@ -7,13 +7,14 @@ import HowToDo from "../sectionComponents/HowToDo";
 import StatsSection from "../sectionComponents/StatsSection";
 import Testimonial from "../sectionComponents/Testimonial";
 import WhyChooseUs from "../sectionComponents/WhyChooseUs";
+import { resolveLandingSections } from "@/utils/landingFallbacks";
 
 const LandingPage = ({ landingData }) => {
-  const sections = landingData?.sections || [];
+  const sections = resolveLandingSections(landingData?.sections);
 
   const renderSection = (section) => {
-    const data = section?.data || {};
-    const contents = section?.contents || [];
+    const data = section.data;
+    const contents = section.contents;
 
     switch (section?.code) {
       case "hero":

@@ -1,11 +1,12 @@
-import { isRemoteMediaSource, normalizeMediaSource } from "@/utils/media";
-import Image from "next/image";
+import SafeImage from "@/components/common/SafeImage";
+import { landingContentImageFallback } from "@/utils/landingFallbacks";
+import { normalizeMediaSource } from "@/utils/media";
 
 const WhyChooseUs = ({ data, contents = [] }) => {
   const title = data?.title;
   const whyChooseLists =
     contents?.length > 0
-      ? contents?.map((item, index) => ({
+      ? contents?.map((item) => ({
           icon: item?.icon,
           title: item?.title,
           des: item?.description,
@@ -27,16 +28,22 @@ const WhyChooseUs = ({ data, contents = [] }) => {
                 key={i}
                 className="p-4 sm:p-5 xl:p-7.5 flex flex-col items-center"
               >
-                {normalizeMediaSource(whyChooseList?.icon) && (
+                {normalizeMediaSource(
+                  whyChooseList?.icon,
+                  landingContentImageFallback("why-choose-us", i),
+                ) && (
                   <div className="w-8 sm:w-12.5 h-8 sm:h-12.5 flex-shrink-0 mb-3 sm:mb-5 xl:mb-10">
-                    <Image
-                      src={normalizeMediaSource(whyChooseList.icon)}
+                    <SafeImage
+                      src={whyChooseList?.icon}
+                      fallbackSrc={landingContentImageFallback(
+                        "why-choose-us",
+                        i,
+                      )}
                       alt="why choose us icon"
                       width={50}
                       height={50}
                       sizes="50px"
                       className="w-full h-full object-cover"
-                      unoptimized={isRemoteMediaSource(whyChooseList.icon)}
                     />
                   </div>
                 )}

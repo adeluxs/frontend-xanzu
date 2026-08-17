@@ -1,9 +1,12 @@
 import { RatingStarIcon } from "@/icons";
-import { isRemoteMediaSource, normalizeMediaSource } from "@/utils/media";
-import Image from "next/image";
+import SafeImage from "@/components/common/SafeImage";
+import { normalizeMediaSource } from "@/utils/media";
 
 const TestimonialCard = ({ testimonial }) => {
-  const testimonialImage = normalizeMediaSource(testimonial?.image);
+  const testimonialImage = normalizeMediaSource(
+    testimonial?.image,
+    testimonial?.imageFallback,
+  );
   const getStarColor = (star, rating) => {
     if (star <= rating) {
       return "text-[#F2B518]";
@@ -38,14 +41,14 @@ const TestimonialCard = ({ testimonial }) => {
         <div className="mt-7.5">
           <div className="flex gap-4 items-center p-2">
             {testimonialImage ? (
-              <Image
+              <SafeImage
                 src={testimonialImage}
+                fallbackSrc={testimonial?.imageFallback}
                 alt="testimonial"
                 width={50}
                 height={50}
                 sizes="40px"
                 className="w-10 h-10 rounded-full object-cover"
-                unoptimized={isRemoteMediaSource(testimonialImage)}
               />
             ) : (
               <div

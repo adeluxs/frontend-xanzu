@@ -2,13 +2,18 @@
 
 import { DownArrowIcon, QuestionIcon, UpArrowIcon } from "@/icons";
 import { useEffect, useState } from "react";
+import { landingImageFallback } from "@/utils/landingFallbacks";
 import { backgroundImageStyle, normalizeMediaSource } from "@/utils/media";
 
 const FaqSection = ({ data, contents = [] }) => {
   const faqData = contents?.length > 0 ? contents : [];
   const [openIndex, setOpenIndex] = useState(faqData.length > 0 ? 0 : null);
   const title = data?.title;
-  const backgroundImage = normalizeMediaSource(data?.background_image);
+  const backgroundFallback = landingImageFallback("faq", "background_image");
+  const backgroundImage = normalizeMediaSource(
+    data?.background_image,
+    backgroundFallback,
+  );
 
   useEffect(() => {
     setOpenIndex(faqData.length > 0 ? 0 : null);
@@ -21,7 +26,7 @@ const FaqSection = ({ data, contents = [] }) => {
   return (
     <section
       className="section_space-py bg-cover bg-no-repeat bg-center w-full h-full"
-      style={backgroundImageStyle(backgroundImage)}
+      style={backgroundImageStyle(backgroundImage, backgroundFallback)}
       id="faq"
     >
       <div className="custom-container mx-auto">

@@ -113,10 +113,10 @@ export const getSelectedLanguage = (languages = [], locale) => {
   return languages.find((lang) => lang?.locale === locale) || languages[0];
 };
 
-export const loadSiteSettings = async ({ fresh = false } = {}) => {
+export const loadSiteSettings = async () => {
   try {
     const data = await requestJson("settings", "/get-settings", {
-      ...(fresh ? { cache: "no-store" } : { next: { revalidate: 300 } }),
+      cache: "no-store",
     });
     return transformSettingsArray(data?.data || []);
   } catch (err) {
@@ -135,7 +135,7 @@ export const buildPageTitle = async (pageTitle) => {
 export const loadLandingData = async (locale = "en") => {
   try {
     return await requestJson("landing", `/landing-data/${locale}`, {
-      next: { revalidate: 300 },
+      cache: "no-store",
     });
   } catch (err) {
     console.error("Landing data load error:", err);
@@ -146,7 +146,7 @@ export const loadLandingData = async (locale = "en") => {
 export const loadNavigationData = async (locale = "en") => {
   try {
     return await requestJson("navigation", `/navigation/${locale}`, {
-      next: { revalidate: 300 },
+      cache: "no-store",
     });
   } catch (err) {
     console.error("Navigation data load error:", err);

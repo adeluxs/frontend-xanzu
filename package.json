@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
+    "check:landing-media": "node scripts/check-landing-media.mjs",
     "start": "next start",
     "lint": "eslint"
   },

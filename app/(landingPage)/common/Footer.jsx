@@ -1,9 +1,9 @@
 "use client";
+import SafeImage from "@/components/common/SafeImage";
 import { FacebookIcon, InstagramIcon, LinkedInIcon } from "@/icons";
-import Image from "next/image";
 import Link from "next/link";
 import { useSelector } from "react-redux";
-import { isRemoteMediaSource, normalizeMediaSource } from "@/utils/media";
+import { normalizeMediaSource } from "@/utils/media";
 
 function getSocialIcon(iconName) {
   const normalizedName = iconName?.toLowerCase();
@@ -53,13 +53,13 @@ const Footer = ({ navigationData }) => {
           <div>
             <Link href="/" className="h-[20px] sm:h-[22px] w-auto inline-block">
               {logoSource ? (
-                <Image
+                <SafeImage
                   src={logoSource}
+                  fallbackSrc="/assets/common/logo/logo-white.svg"
                   alt="logo"
                   width={150}
                   height={40}
                   className="w-full h-full object-contain"
-                  unoptimized={isRemoteMediaSource(logoSource)}
                 />
               ) : (
                 <div className="w-[120px] h-[22px] bg-gray-300 animate-pulse rounded-md" />

@@ -19,27 +19,30 @@ export async function generateMetadata() {
     const siteTitle =
       typeof settings?.site_title === "string" && settings.site_title.trim()
         ? settings.site_title.trim()
-        : "BNPL";
+        : "MozaPay";
     const siteFavicon =
       typeof settings?.site_favicon === "string" &&
       settings.site_favicon.trim()
         ? settings.site_favicon.trim()
-        : "/favicon.png";
+        : null;
 
     return {
       title: siteTitle,
       icons: {
-        icon: siteFavicon,
+        icon: [
+          { url: "/assets/common/logo/logo.svg", type: "image/svg+xml" },
+          ...(siteFavicon ? [{ url: siteFavicon }] : []),
+        ],
       },
     };
   } catch (err) {
     console.error("Failed to fetch settings:", err);
 
     return {
-      title: "BNPL",
+      title: "MozaPay",
       description: "Empower Your Financial Journey",
       icons: {
-        icon: "/favicon.png",
+        icon: "/assets/common/logo/logo.svg",
       },
     };
   }

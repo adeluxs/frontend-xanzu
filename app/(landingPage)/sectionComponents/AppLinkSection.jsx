@@ -1,26 +1,45 @@
+import SafeImage from "@/components/common/SafeImage";
+import { landingImageFallback } from "@/utils/landingFallbacks";
 import {
   backgroundImageStyle,
-  isRemoteMediaSource,
   normalizeLinkHref,
   normalizeMediaSource,
 } from "@/utils/media";
-import Image from "next/image";
 import Link from "next/link";
 
 const AppLinkSection = ({ data }) => {
   const title = data?.title;
   const description = data?.description;
-  const backgroundImage = normalizeMediaSource(data?.background_image);
-  const rightImage = normalizeMediaSource(data?.right_image);
+  const backgroundFallback = landingImageFallback(
+    "app-link",
+    "background_image",
+  );
+  const backgroundImage = normalizeMediaSource(
+    data?.background_image,
+    backgroundFallback,
+  );
+  const rightFallback = landingImageFallback("app-link", "right_image");
+  const rightImage = normalizeMediaSource(data?.right_image, rightFallback);
   const appStoreUrl = normalizeLinkHref(data?.app_store_url, "/");
-  const appStoreIcon = normalizeMediaSource(data?.app_store_icon);
+  const appStoreFallback = landingImageFallback("app-link", "app_store_icon");
+  const appStoreIcon = normalizeMediaSource(
+    data?.app_store_icon,
+    appStoreFallback,
+  );
   const playStoreUrl = normalizeLinkHref(data?.play_store_url, "/");
-  const playStoreIcon = normalizeMediaSource(data?.play_store_icon);
+  const playStoreFallback = landingImageFallback(
+    "app-link",
+    "play_store_icon",
+  );
+  const playStoreIcon = normalizeMediaSource(
+    data?.play_store_icon,
+    playStoreFallback,
+  );
 
   return (
     <section
       className="section_space-py bg-cover bg-no-repeat bg-center w-full h-full"
-      style={backgroundImageStyle(backgroundImage)}
+      style={backgroundImageStyle(backgroundImage, backgroundFallback)}
     >
       <div className="custom-container mx-auto">
         <div className="grid grid-cols-2 md:grid-cols-12 gap-7.5 items-center">
@@ -38,14 +57,14 @@ const AppLinkSection = ({ data }) => {
                     href={appStoreUrl}
                     className="h-[40px] sm:h-[50px] xl:h-[60px] w-auto"
                   >
-                    <Image
+                    <SafeImage
                       src={appStoreIcon}
+                      fallbackSrc={appStoreFallback}
                       alt="app store"
                       width={180}
                       height={60}
                       sizes="180px"
                       className="w-auto h-full object-contain"
-                      unoptimized={isRemoteMediaSource(appStoreIcon)}
                     />
                   </Link>
                 )}
@@ -54,14 +73,14 @@ const AppLinkSection = ({ data }) => {
                     href={playStoreUrl}
                     className="h-[40px] sm:h-[50px] xl:h-[60px] w-auto"
                   >
-                    <Image
+                    <SafeImage
                       src={playStoreIcon}
+                      fallbackSrc={playStoreFallback}
                       alt="play store"
                       width={180}
                       height={60}
                       sizes="180px"
                       className="w-auto h-full object-contain"
-                      unoptimized={isRemoteMediaSource(playStoreIcon)}
                     />
                   </Link>
                 )}
@@ -72,14 +91,14 @@ const AppLinkSection = ({ data }) => {
             <div className="col-span-2 md:col-span-5">
               <div className="rtl:pr-0 ltr:pl-0 2xl:rtl:pr-8 2xl:ltr:pl-8">
                 <div className="w-full h-full xl:h-[530px] 2xl:h-[570px] 3xl:h-[590px]">
-                  <Image
+                  <SafeImage
                     src={rightImage}
+                    fallbackSrc={rightFallback}
                     alt="app"
                     width={950}
                     height={950}
                     sizes="(max-width: 768px) 100vw, 42vw"
                     className="w-full h-full object-cover"
-                    unoptimized={isRemoteMediaSource(rightImage)}
                   />
                 </div>
               </div>

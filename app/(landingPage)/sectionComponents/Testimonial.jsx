@@ -23,6 +23,7 @@ const Testimonial = ({ data, contents = [] }) => {
           name: item?.name,
           designation: item?.designation,
           image: item?.picture,
+          imageFallback: `/assets/landing-page/testimonials-section/testimonial-user-${(index % 3) + 1}.svg`,
           rating: Number(item?.star || 5),
           review: item?.description || "",
         }))

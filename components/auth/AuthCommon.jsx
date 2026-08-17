@@ -1,15 +1,21 @@
 "use client";
+import SafeImage from "@/components/common/SafeImage";
 import { useT } from "@/context/TranslationContext";
 import Image from "next/image";
 import Link from "next/link";
 import { useSelector } from "react-redux";
-import { isRemoteMediaSource, normalizeMediaSource } from "@/utils/media";
+import { normalizeMediaSource } from "@/utils/media";
 
 const AuthCommon = ({ children }) => {
-  const logo = useSelector(
+  const darkLogo = useSelector(
     (state) => state?.settings?.settings?.site_logo_dark,
   );
+  const logo = useSelector((state) => state?.settings?.settings?.site_logo);
   const logoSource = normalizeMediaSource(
+    darkLogo,
+    "/assets/common/logo/logo.svg",
+  );
+  const logoFallback = normalizeMediaSource(
     logo,
     "/assets/common/logo/logo.svg",
   );
@@ -31,13 +37,13 @@ const AuthCommon = ({ children }) => {
                 className="inline-block h-[20px] sm:h-[22px] w-auto mb-6 lg:mb-9"
               >
                 {logoSource ? (
-                  <Image
+                  <SafeImage
                     src={logoSource}
+                    fallbackSrc={logoFallback}
                     alt="logo"
                     width={150}
                     height={40}
                     className="w-full h-full object-contain"
-                    unoptimized={isRemoteMediaSource(logoSource)}
                     priority
                   />
                 ) : (

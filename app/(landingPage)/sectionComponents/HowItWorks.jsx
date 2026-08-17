@@ -1,17 +1,25 @@
+import SafeImage from "@/components/common/SafeImage";
 import {
-  backgroundImageStyle,
-  isRemoteMediaSource,
-  normalizeMediaSource,
-} from "@/utils/media";
-import Image from "next/image";
+  landingContentImageFallback,
+  landingImageFallback,
+} from "@/utils/landingFallbacks";
+import { backgroundImageStyle, normalizeMediaSource } from "@/utils/media";
 
 const HowItWorks = ({ data, contents = [] }) => {
   const title = data?.title;
-  const backgroundImage = normalizeMediaSource(data?.background_image);
-  const rightImage = normalizeMediaSource(data?.right_image);
+  const backgroundFallback = landingImageFallback(
+    "how-it-works",
+    "background_image",
+  );
+  const backgroundImage = normalizeMediaSource(
+    data?.background_image,
+    backgroundFallback,
+  );
+  const rightFallback = landingImageFallback("how-it-works", "right_image");
+  const rightImage = normalizeMediaSource(data?.right_image, rightFallback);
   const steps =
     contents?.length > 0
-      ? contents?.map((step, index) => ({
+      ? contents?.map((step) => ({
           icon: step?.icon,
           title: step?.title,
           desc: step?.description,
@@ -21,7 +29,7 @@ const HowItWorks = ({ data, contents = [] }) => {
   return (
     <section
       className="section_space-py bg-cover bg-no-repeat w-full h-full"
-      style={backgroundImageStyle(backgroundImage)}
+      style={backgroundImageStyle(backgroundImage, backgroundFallback)}
     >
       <div className="custom-container mx-auto">
         <div className="grid grid-cols-2 lg:grid-cols-12 gap-7.5 items-center">
@@ -37,16 +45,22 @@ const HowItWorks = ({ data, contents = [] }) => {
                   className="flex flex-col sm:flex-row gap-5 sm:gap-6 xl:gap-10"
                 >
                   <div className="flex flex-col items-start sm:items-center">
-                    {normalizeMediaSource(step?.icon) && (
+                    {normalizeMediaSource(
+                      step?.icon,
+                      landingContentImageFallback("how-it-works", i),
+                    ) && (
                       <div className="w-8 sm:w-10 h-8 sm:h-10 flex-shrink-0">
-                        <Image
-                          src={normalizeMediaSource(step.icon)}
+                        <SafeImage
+                          src={step?.icon}
+                          fallbackSrc={landingContentImageFallback(
+                            "how-it-works",
+                            i,
+                          )}
                           alt="step icon"
                           width={50}
                           height={50}
                           sizes="40px"
                           className="w-full h-full object-cover"
-                          unoptimized={isRemoteMediaSource(step.icon)}
                         />
                       </div>
                     )}
@@ -72,14 +86,14 @@ const HowItWorks = ({ data, contents = [] }) => {
           {rightImage && (
             <div className="col-span-2 lg:col-span-6 xl:col-span-5">
               <div className="w-full h-full lg:h-[500px] 3xl:h-[620px] rounded-3xl md:rounded-[30px] overflow-hidden">
-                <Image
+                <SafeImage
                   src={rightImage}
+                  fallbackSrc={rightFallback}
                   alt="how it works"
                   width={1250}
                   height={1250}
                   sizes="(max-width: 1024px) 100vw, 42vw"
                   className="w-full h-auto object-cover"
-                  unoptimized={isRemoteMediaSource(rightImage)}
                 />
               </div>
             </div>
