@@ -7,6 +7,7 @@ import {
   useSendTransferMutation,
   useValidateTransferMutation,
 } from "@/lib/features/transfer/transferApi";
+import { isFeatureEnabled } from "@/lib/utils/featureFlags";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 
@@ -20,8 +21,13 @@ const Transfer = () => {
   const [lookupNotFound, setLookupNotFound] = useState(false);
   const [lookupAttempted, setLookupAttempted] = useState(false);
 
-  const { data: configData, isLoading: configLoading } =
-    useGetTransferConfigQuery({});
+  const {
+    data: configData,
+    isLoading: configLoading,
+    isError: configFailed,
+    error: configError,
+    refetch: refetchConfig,
+  } = useGetTransferConfigQuery();
   const { data: lookupData, isLoading: isLookingUp } =
     useLookupTransferRecipientQuery(recipientPhone, {
       skip: !recipientPhone || recipientPhone.trim().length < 3,
@@ -32,8 +38,21 @@ const Transfer = () => {
     useValidateTransferMutation();
 
   const t = useT();
-  const balance = configData?.data?.user_balance ?? 0;
-  const transferEnabled = configData?.data?.transfer_status === 1;
+  const config = configData?.data;
+  const balance = Number(config?.user_balance ?? 0);
+  const transferEnabled = isFeatureEnabled(config?.transfer_status);
+  const disabledMessage = (() => {
+    switch (config?.disabled_reason) {
+      case "global_disabled":
+        return t("dashboard.transferGloballyDisabled");
+      case "merchant_disabled":
+        return t("dashboard.merchantTransferDisabled");
+      case "kyc_required":
+        return t("dashboard.transferKycRequired");
+      default:
+        return t("dashboard.transferNotEnabled");
+    }
+  })();
 
   useEffect(() => {
     if (!lookupData) {
@@ -140,6 +159,33 @@ const Transfer = () => {
     );
   }
 
+  if (configFailed) {
+    const message =
+      configError?.data?.message || t("dashboard.transferConfigLoadFailed");
+
+    return (
+      <div className="max-w-[660px] mx-auto pt-6 sm:pt-10">
+        <div className="rounded-[20px] border border-red-200 bg-white p-6 sm:p-8">
+          <div className="flex flex-col items-center justify-center py-10 text-center">
+            <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mb-4">
+              <svg className="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v4m0 4h.01M10.29 3.86l-8.82 15.28A2 2 0 003.18 22h17.64a2 2 0 001.71-2.86L13.71 3.86a2 2 0 00-3.42 0z" />
+              </svg>
+            </div>
+            <p className="text-grayish/70 text-base mb-5">{message}</p>
+            <button
+              type="button"
+              onClick={refetchConfig}
+              className="h-11 px-6 rounded-xl bg-[#44F1A6] hover:bg-[#3de099] text-[#072126] font-semibold transition-colors"
+            >
+              {t("dashboard.tryAgain")}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (!transferEnabled) {
     return (
       <div className="max-w-[660px] mx-auto pt-6 sm:pt-10">
@@ -150,7 +196,7 @@ const Transfer = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
-            <p className="text-grayish/60 text-base">{t("dashboard.transferNotEnabled")}</p>
+            <p className="text-grayish/60 text-base">{disabledMessage}</p>
           </div>
         </div>
       </div>
