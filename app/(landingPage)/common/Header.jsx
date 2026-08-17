@@ -5,6 +5,7 @@ import { useT } from "@/context/TranslationContext";
 import { useGetUserQuery } from "@/lib/features/user/userApi";
 import Cookies from "js-cookie";
 import { MenuIcon, X } from "lucide-react";
+import { isRemoteMediaSource, normalizeMediaSource } from "@/utils/media";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -26,6 +27,10 @@ const Header = ({ navigationData }) => {
   );
   const logo = useSelector(
     (state) => state?.settings?.settings?.site_logo_dark,
+  );
+  const logoSource = normalizeMediaSource(
+    logo,
+    "/assets/common/logo/logo.svg",
   );
   const t = useT();
 
@@ -64,13 +69,15 @@ const Header = ({ navigationData }) => {
         <div className="flex gap-2 justify-between items-center h-[76px] lg:h-[92px]">
           <div className="flex items-center gap-10 3xl:gap-15">
             <Link href="/" className="h-[20px] sm:h-[22px] w-auto">
-              {logo ? (
+              {logoSource ? (
                 <Image
-                  src={logo}
+                  src={logoSource}
                   alt="logo"
                   width={150}
                   height={40}
                   className="w-full h-full object-contain"
+                  unoptimized={isRemoteMediaSource(logoSource)}
+                  priority
                 />
               ) : (
                 <div className="w-[120px] h-[22px] bg-gray-300 animate-pulse rounded-md" />

@@ -12,6 +12,7 @@ import {
   useGetMethodsQuery,
 } from "@/lib/features/withdraw/withdrawApi";
 import { formatText } from "@/utils/utils";
+import { isRemoteMediaSource, normalizeMediaSource } from "@/utils/media";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -114,10 +115,13 @@ const AddWithdrawAccount = () => {
                 <div className="flex items-center gap-2">
                   {option.icon && (
                     <Image
-                      src={option.icon}
+                      src={normalizeMediaSource(option.icon)}
                       alt={option.label}
                       width={20}
                       height={20}
+                      unoptimized={isRemoteMediaSource(
+                        normalizeMediaSource(option.icon),
+                      )}
                       className="w-5 h-5 object-contain rounded"
                     />
                   )}

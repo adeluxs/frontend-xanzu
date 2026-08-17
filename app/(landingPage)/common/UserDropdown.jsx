@@ -13,6 +13,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { normalizeMediaSource } from "@/utils/media";
 
 const UserDropdown = () => {
   const { data: user, isLoading: isUserLoading } = useGetUserQuery();
@@ -22,6 +23,10 @@ const UserDropdown = () => {
   const dropdownRef = useRef(null);
   const router = useRouter();
   const t = useT();
+  const avatarSource = normalizeMediaSource(
+    user?.data?.avatar,
+    "/assets/common/user/user.png",
+  );
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -58,7 +63,7 @@ const UserDropdown = () => {
             <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse" />
           ) : (
             <Image
-              src={user?.data?.avatar}
+              src={avatarSource}
               alt="user"
               width={150}
               height={140}
@@ -91,11 +96,12 @@ const UserDropdown = () => {
             <div className="flex items-center gap-3">
               <div className="w-11 h-11 rounded-full">
                 <Image
-                  src={user?.data?.avatar}
+                  src={avatarSource}
                   alt="user"
                   width={150}
                   height={140}
                   className="w-full h-full object-contain rounded-full"
+                  unoptimized
                 />
               </div>
               <div>

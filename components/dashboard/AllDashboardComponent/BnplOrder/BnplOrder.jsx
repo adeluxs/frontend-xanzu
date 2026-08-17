@@ -8,6 +8,7 @@ import { useDocumentDirection } from "@/hooks/useDocumentDirection";
 import { SearchIcon } from "@/icons";
 import { useGetBnplAllProductQuery } from "@/lib/features/addProduct/addProductApi";
 import { useState } from "react";
+import { normalizeMediaSource } from "@/utils/media";
 
 const PER_PAGE = 8;
 
@@ -143,7 +144,7 @@ const BnplOrder = () => {
                           <div className="flex items-center gap-1.5">
                             {order?.product_image ? (
                               <img
-                                src={order?.product_image}
+                                src={normalizeMediaSource(order?.product_image)}
                                 alt={order?.order?.product_name}
                                 className="h-7 w-7 shrink-0 rounded-sm object-cover"
                               />
@@ -160,7 +161,7 @@ const BnplOrder = () => {
                           <div className="flex items-center gap-2.5">
                             {order?.customer_image ? (
                               <img
-                                src={order?.customer_image}
+                                src={normalizeMediaSource(order?.customer_image)}
                                 alt={order?.customer_name}
                                 className="h-7 w-7 shrink-0 rounded-full object-cover"
                               />

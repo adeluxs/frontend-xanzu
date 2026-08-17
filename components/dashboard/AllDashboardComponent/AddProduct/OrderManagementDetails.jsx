@@ -18,6 +18,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
+import { normalizeMediaSource } from "@/utils/media";
 
 const formatText = (value) => {
   if (!value) return "N/A";
@@ -246,7 +247,7 @@ const OrderManagementDetails = () => {
               </span>
               {item?.product_image ? (
                 <img
-                  src={item.product_image}
+                  src={normalizeMediaSource(item.product_image)}
                   alt={item?.product_name || "Product"}
                   className="h-20 w-20 rounded-[12px] object-cover"
                 />

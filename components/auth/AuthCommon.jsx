@@ -3,10 +3,15 @@ import { useT } from "@/context/TranslationContext";
 import Image from "next/image";
 import Link from "next/link";
 import { useSelector } from "react-redux";
+import { isRemoteMediaSource, normalizeMediaSource } from "@/utils/media";
 
 const AuthCommon = ({ children }) => {
   const logo = useSelector(
     (state) => state?.settings?.settings?.site_logo_dark,
+  );
+  const logoSource = normalizeMediaSource(
+    logo,
+    "/assets/common/logo/logo.svg",
   );
   const t = useT();
 
@@ -25,13 +30,15 @@ const AuthCommon = ({ children }) => {
                 href="/"
                 className="inline-block h-[20px] sm:h-[22px] w-auto mb-6 lg:mb-9"
               >
-                {logo ? (
+                {logoSource ? (
                   <Image
-                    src={logo}
+                    src={logoSource}
                     alt="logo"
                     width={150}
                     height={40}
                     className="w-full h-full object-contain"
+                    unoptimized={isRemoteMediaSource(logoSource)}
+                    priority
                   />
                 ) : (
                   <div className="w-[120px] h-[22px] bg-gray-300 animate-pulse rounded-md" />

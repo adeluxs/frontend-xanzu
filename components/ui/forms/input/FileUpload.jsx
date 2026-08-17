@@ -1,5 +1,6 @@
 "use client";
 import { File, X } from "lucide-react";
+import { normalizeMediaSource } from "@/utils/media";
 import {
   forwardRef,
   useEffect,
@@ -186,8 +187,9 @@ const FileUpload = forwardRef(function FileUpload(
             {defaultFiles.length > 0 && attachments.length === 0 && (
               <>
                 {defaultFiles.map((file, index) => {
-                  const fileUrl =
+                  const rawFileUrl =
                     typeof file === "object" && file !== null ? file.url : file;
+                  const fileUrl = normalizeMediaSource(rawFileUrl);
                   const fileName = getFileNameFromUrl(file);
                   return (
                     <div

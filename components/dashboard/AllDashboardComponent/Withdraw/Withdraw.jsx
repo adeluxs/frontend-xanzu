@@ -9,6 +9,7 @@ import {
   useWithdrawNowMutation,
 } from "@/lib/features/withdraw/withdrawApi";
 import { calculateChargeAndTotal } from "@/utils/utils";
+import { isRemoteMediaSource, normalizeMediaSource } from "@/utils/media";
 import Image from "next/image";
 import { useState } from "react";
 import { toast } from "react-toastify";
@@ -107,10 +108,13 @@ const Withdraw = () => {
                   <div className="flex items-center gap-2">
                     {option.icon && (
                       <Image
-                        src={option.icon}
+                        src={normalizeMediaSource(option.icon)}
                         alt={option.label}
                         width={20}
                         height={20}
+                        unoptimized={isRemoteMediaSource(
+                          normalizeMediaSource(option.icon),
+                        )}
                         className="w-5 h-5 object-contain rounded"
                       />
                     )}

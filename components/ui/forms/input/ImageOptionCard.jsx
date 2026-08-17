@@ -2,6 +2,7 @@
 
 import { CheckIcon2 } from "@/icons";
 import Image from "next/image";
+import { isRemoteMediaSource, normalizeMediaSource } from "@/utils/media";
 
 const ImageOptionCard = ({
   id,
@@ -16,6 +17,7 @@ const ImageOptionCard = ({
   showLabel = false,
 }) => {
   const inputType = type === "multiple" ? "checkbox" : "radio";
+  const imageSource = normalizeMediaSource(image);
 
   return (
     <label
@@ -37,13 +39,16 @@ const ImageOptionCard = ({
       />
 
       <div className="relative w-full h-full bg-grayish/5">
-        <Image
-          src={image}
-          alt={label}
-          width={200}
-          height={200}
-          className="object-cover w-full h-full"
-        />
+        {imageSource && (
+          <Image
+            src={imageSource}
+            alt={label}
+            width={200}
+            height={200}
+            className="object-cover w-full h-full"
+            unoptimized={isRemoteMediaSource(imageSource)}
+          />
+        )}
       </div>
       {showLabel && (
         <p className="text-grayish text-sm font-medium px-3 py-2">{label}</p>

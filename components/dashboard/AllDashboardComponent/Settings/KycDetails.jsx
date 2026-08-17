@@ -3,6 +3,7 @@
 import { useT } from "@/context/TranslationContext";
 import { useKycDetailsQuery } from "@/lib/features/auth/authApi";
 import Image from "next/image";
+import { isRemoteMediaSource, normalizeMediaSource } from "@/utils/media";
 
 const isImageUrl = (value) => {
   if (typeof value !== "string") return false;
@@ -59,6 +60,7 @@ const KycDetails = () => {
             .replace(/_/g, " ")
             .replace(/\b\w/g, (c) => c.toUpperCase());
           const isImage = isImageUrl(value);
+          const imageSource = isImage ? normalizeMediaSource(value) : null;
 
           return (
             <div
@@ -72,11 +74,12 @@ const KycDetails = () => {
               {isImage ? (
                 <div className="relative w-full h-full rounded-lg overflow-hidden border border-[rgba(7,33,38,0.12)]">
                   <Image
-                    src={value}
+                    src={imageSource}
                     alt={label}
                     width={500}
                     height={500}
                     className="w-full h-full object-contain"
+                    unoptimized={isRemoteMediaSource(imageSource)}
                   />
                 </div>
               ) : (

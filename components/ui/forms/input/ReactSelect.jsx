@@ -1,6 +1,7 @@
 "use client";
 import { useSyncExternalStore } from "react";
 import Select from "react-select";
+import { normalizeMediaSource } from "@/utils/media";
 
 const emptySubscribe = () => () => {};
 const getClientSnapshot = () => true;
@@ -53,7 +54,7 @@ const ReactSelectInput = ({
     <div className="flex items-center gap-2">
       {option.image && (
         <img
-          src={option.image}
+          src={normalizeMediaSource(option.image)}
           alt={option.label}
           className="h-4 w-auto rounded-[2px] object-cover"
         />

@@ -12,6 +12,7 @@ import {
   useGetWithdrawAccountsQuery,
 } from "@/lib/features/withdraw/withdrawApi";
 import { formatDate } from "@/utils/utils";
+import { isRemoteMediaSource, normalizeMediaSource } from "@/utils/media";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -157,10 +158,13 @@ const WithdrawAccount = () => {
                           <div className="flex items-center gap-2">
                             {account.method?.icon && (
                               <Image
-                                src={account?.method?.icon}
+                                src={normalizeMediaSource(account?.method?.icon)}
                                 alt={account?.method?.name}
                                 width={24}
                                 height={24}
+                                unoptimized={isRemoteMediaSource(
+                                  normalizeMediaSource(account?.method?.icon),
+                                )}
                                 className="w-6 h-6 object-contain rounded"
                               />
                             )}

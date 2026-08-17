@@ -5,6 +5,7 @@ import Cookies from "js-cookie";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { isRemoteMediaSource, normalizeMediaSource } from "@/utils/media";
 
 const LanguageDropdown = ({ isOnlyIcon = false, isDashboard = false }) => {
   const [languageDropdown, setLanguageDropdown] = useState(false);
@@ -122,11 +123,14 @@ const LanguageDropdown = ({ isOnlyIcon = false, isDashboard = false }) => {
               >
                 {lang.flag && (
                   <Image
-                    src={lang.flag}
+                    src={normalizeMediaSource(lang.flag)}
                     alt={lang.name}
                     width={18}
                     height={18}
                     className="rounded-full object-cover"
+                    unoptimized={isRemoteMediaSource(
+                      normalizeMediaSource(lang.flag),
+                    )}
                   />
                 )}
                 {lang.name}

@@ -2,12 +2,13 @@
 
 import { DownArrowIcon, QuestionIcon, UpArrowIcon } from "@/icons";
 import { useEffect, useState } from "react";
+import { backgroundImageStyle, normalizeMediaSource } from "@/utils/media";
 
 const FaqSection = ({ data, contents = [] }) => {
   const faqData = contents?.length > 0 ? contents : [];
   const [openIndex, setOpenIndex] = useState(faqData.length > 0 ? 0 : null);
   const title = data?.title;
-  const backgroundImage = data?.background_image;
+  const backgroundImage = normalizeMediaSource(data?.background_image);
 
   useEffect(() => {
     setOpenIndex(faqData.length > 0 ? 0 : null);
@@ -20,9 +21,7 @@ const FaqSection = ({ data, contents = [] }) => {
   return (
     <section
       className="section_space-py bg-cover bg-no-repeat bg-center w-full h-full"
-      style={{
-        backgroundImage: `url('${backgroundImage}')`,
-      }}
+      style={backgroundImageStyle(backgroundImage)}
       id="faq"
     >
       <div className="custom-container mx-auto">

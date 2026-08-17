@@ -15,6 +15,7 @@ import {
   useGetAllProductQuery,
 } from "@/lib/features/addProduct/addProductApi";
 import { useState } from "react";
+import { normalizeMediaSource } from "@/utils/media";
 
 const PER_PAGE = 20;
 
@@ -204,7 +205,7 @@ const Listing = () => {
                             <div className="w-[22px] h-[22px] shrink-0">
                               {product.image ? (
                                 <img
-                                  src={product.image}
+                                  src={normalizeMediaSource(product.image)}
                                   alt={product.name}
                                   className="w-full h-full object-contain"
                                 />

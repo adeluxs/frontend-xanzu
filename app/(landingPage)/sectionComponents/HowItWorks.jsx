@@ -1,9 +1,13 @@
-import { isRemoteMediaSource, normalizeMediaSource } from "@/utils/media";
+import {
+  backgroundImageStyle,
+  isRemoteMediaSource,
+  normalizeMediaSource,
+} from "@/utils/media";
 import Image from "next/image";
 
 const HowItWorks = ({ data, contents = [] }) => {
   const title = data?.title;
-  const backgroundImage = data?.background_image;
+  const backgroundImage = normalizeMediaSource(data?.background_image);
   const rightImage = normalizeMediaSource(data?.right_image);
   const steps =
     contents?.length > 0
@@ -17,9 +21,7 @@ const HowItWorks = ({ data, contents = [] }) => {
   return (
     <section
       className="section_space-py bg-cover bg-no-repeat w-full h-full"
-      style={{
-        backgroundImage: `url('${backgroundImage}')`,
-      }}
+      style={backgroundImageStyle(backgroundImage)}
     >
       <div className="custom-container mx-auto">
         <div className="grid grid-cols-2 lg:grid-cols-12 gap-7.5 items-center">

@@ -1,5 +1,5 @@
 import { loadSiteSettings } from "@/utils/serverUtils";
-import { isRemoteMediaSource } from "@/utils/media";
+import { isRemoteMediaSource, normalizeMediaSource } from "@/utils/media";
 import Image from "next/image";
 import MaintenanceRefreshButton from "./MaintenanceRefreshButton";
 
@@ -18,7 +18,10 @@ export default async function MaintenancePage() {
   const text =
     settings.maintenance_text ||
     "Sorry for interrupting! The site will be live soon.";
-  const logo = settings.site_logo_dark || "/assets/common/logo/logo.svg";
+  const logo = normalizeMediaSource(
+    settings.site_logo_dark,
+    "/assets/common/logo/logo.svg",
+  );
 
   return (
     <main

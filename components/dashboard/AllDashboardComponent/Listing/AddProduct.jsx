@@ -11,6 +11,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { toast } from "react-toastify";
+import { normalizeMediaSource } from "@/utils/media";
 
 const AddProduct = () => {
   const [search, setSearch] = useState("");
@@ -236,7 +237,7 @@ const AddProduct = () => {
 
                       <div className="w-10 h-10 flex-shrink-0">
                         <img
-                          src={product.image}
+                          src={normalizeMediaSource(product.image)}
                           alt={product.name}
                           className="w-full h-full object-contain"
                         />
