@@ -9,6 +9,7 @@ import {
   loadSiteSettings,
 } from "@/utils/serverUtils";
 import { ToastContainer } from "react-toastify";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 export const dynamic = "force-dynamic";
@@ -80,6 +81,7 @@ export default async function RootLayout({ children }) {
             </SettingsProvider>
           </TranslationProvider>
         </StoreProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
